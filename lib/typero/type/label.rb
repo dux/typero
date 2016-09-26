@@ -5,7 +5,7 @@ module Typero
     end
 
     def validate(value)
-      raise TypeError, "#{@name} is having unallowed characters" unless value =~ /^[\w\-]+$/
+      raise TypeError, "having unallowed characters" unless value =~ /^[\w\-]+$/
       true
     end
   end
