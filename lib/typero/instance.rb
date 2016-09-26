@@ -44,7 +44,7 @@ module Typero
       return [] unless opts
       errors = []
       for k, v in opts
-        errors.push [k, v.opts[:req]] if v.opts[:req] && !v.present?(self[k])
+        errors.push [k, v.opts[:req]] if v.opts[:req] && self[k].blank?
       end
       errors
     end

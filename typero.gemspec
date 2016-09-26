@@ -1,12 +1,11 @@
-Gem::Specification.new do |s|
-  s.name        = 'typero'
-  s.version     = '0.2'
-  s.date        = '2016-10-09'
+require File.expand_path("../lib/typero/version", __FILE__)
+
+Gem::Specification.new 'typero', Typero::VERSION do |s|
   s.summary     = 'Ruby type system'
   s.description = 'Simple and fast ruby type system. Enforce types as Array, Email, Boolean for ruby class instances'
   s.authors     = ["Dino Reic"]
-  s.email       = 'reic.din@gmail.com'
-  s.files       = ["lib/typero.rb"]
-  s.homepage    = 'http://rubygems.org/dux/typero'
+  s.email       = 'reic.dino@gmail.com'
+  s.files       = Dir['./lib/**/*.rb'].reverse
+  s.homepage    = 'https://github.com/dux/typero'
   s.license     = 'MIT'
 end

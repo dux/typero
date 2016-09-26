@@ -1,4 +1,4 @@
-require './lib/typero'
+require_relative '../lib/typero'
 require 'active_support/core_ext/string' unless respond_to?(:capitalize)
 
 class Test

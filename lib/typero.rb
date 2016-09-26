@@ -1,3 +1,10 @@
+require_relative './typero/instance'
+require_relative './typero/schema'
+require_relative './typero/type'
+require_relative './typero/hash'
+
+Dir["#{File.dirname(__FILE__)}/typero/type/*.rb"].each{ |f| load f }
+
 # attribute :url, :url
 # attribute :name, req:'Link name is required'
 # attribute :tags, Array[:label]
@@ -81,9 +88,3 @@ module Typero
   end
 end
 
-require './lib/typero/instance'
-require './lib/typero/schema'
-require './lib/typero/type'
-require './lib/typero/hash'
-
-Dir['lib/typero/type/*.rb'].each{ |f| require "./#{f.sub('.rb','')}" }

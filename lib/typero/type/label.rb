@@ -1,7 +1,7 @@
 module Typero
   class LabelType < Typero::Type
     def set(value)
-      value.gsub(/[^\w\-]/,'')[0,30].downcase
+      value.to_s.gsub(/[^\w\-]/,'')[0,30].downcase
     end
 
     def validate(value)
