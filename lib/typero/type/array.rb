@@ -13,12 +13,10 @@ module Typero
       value
     end
 
-    def min(value, length)
-      raise TypeError, "Min array lenght is #{length} elements" if value.length  < length
-    end
-
-    def max(value, length)
-      raise TypeError, "Max array lenght is #{length} elements" if value.length  > length
+    def validate(list)
+      raise TypeError, "Min array lenght is #{@opts[:min]} elements" if @opts[:min] && @opts[:min] < list.length
+      raise TypeError, "Max array lenght is #{@opts[:max]} elements" if @opts[:max] && @opts[:max] < list.length
+      true
     end
   end
 end

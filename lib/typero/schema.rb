@@ -51,8 +51,10 @@ module Typero
           rescue
             errors[field] = $!.message
           end
-        elsif !Typero.validate(value, type)
-          errors[field] = "#{field.to_s.capitalize} is #{Typero.last_error}"
+        else
+          Typero.validate!(value, type, check_hash) { |msg|
+            errors[field] = "#{field.to_s.capitalize}: #{msg}"
+          }
         end
       end
       errors.keys.length > 0  ? errors : nil

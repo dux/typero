@@ -8,4 +8,6 @@ Gem::Specification.new 'typero', Typero::VERSION do |s|
   s.files       = Dir['./lib/**/*.rb'].reverse
   s.homepage    = 'https://github.com/dux/typero'
   s.license     = 'MIT'
+  s.add_runtime_dependency 'fast_blank'
+  s.add_runtime_dependency 'active_support/core_ext/string'
 end

@@ -10,16 +10,6 @@ module Typero
 
     ### SAFE TO OVERLOAD: START
 
-    # default min implementation
-    def min(value, length)
-      raise TypeError, "Min #{@type} lenght for #{@name} is #{length}, you have #{value.to_s.length}" if value.to_s.length  < length
-    end
-
-    # default max implementation
-    def max(value, length)
-      raise TypeError, "Max #{@type} length for #{@name} is #{length}, you have #{value.to_s.length}" if value.to_s.length  > length
-    end
-
     # if value is not blank, it is sent to set method
     def set(value)
       value
@@ -81,9 +71,6 @@ module Typero
           filter = filter.where('id<>?', instance.id) if instance.id
           raise TypeError, @opts[:uniq].class == TrueClass ? "Field #{@name} is uniqe and allready exists" : @opts[:uniq] if filter.first
         end
-
-        min(value, @opts[:min]) if @opts[:min]
-        max(value, @opts[:max]) if @opts[:max]
 
         validate(value)
       elsif @opts[:req]

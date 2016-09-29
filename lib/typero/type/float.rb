@@ -4,12 +4,11 @@ module Typero
       value.to_f
     end
 
-    def min(value, length)
-      raise TypeError, "Min #{@type} lenght for #{@name} is #{length}, you have #{value}" if value.to_f  < length
-    end
-
-    def max(value, length)
-      raise TypeError, "Max #{@type} length for #{@name} is #{length}, you have #{value}" if value.to_f  > length
+    def validate(input)
+      value = set(input)
+      raise TypeError, "min lenght is #{@opts[:min]}" if @opts[:min] && value < @opts[:min]
+      raise TypeError, "max lenght is #{@opts[:max]}" if @opts[:max] && value > @opts[:max]
+      true
     end
   end
 end

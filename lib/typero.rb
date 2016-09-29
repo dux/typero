@@ -1,3 +1,5 @@
+require 'fast_blank'
+
 require_relative './typero/instance'
 require_relative './typero/schema'
 require_relative './typero/type'
@@ -66,7 +68,7 @@ module Typero
   def validate(*args)
     validate!(*args)
     true
-  rescue
+  rescue TypeError
     false
   end
 

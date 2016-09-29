@@ -115,4 +115,19 @@ describe Typero do
     end
   end
 
+  describe Typero::Schema do
+    it 'should check against the schema' do
+      schema = Typero::Schema.load_schema({
+        email: { req: true, type: :email },
+        age:   { type: Integer, min: 18, max: 150 }
+      })
+
+      res = schema.check({ email:'dux@net.hr', age:'40' }) # ok
+      expect(res).to be_nil
+
+      res = schema.check({ email:'duxnet.hr', age:'16' }) # nope, 2 errors
+      expect(res[:email]).to be_present
+      expect(res[:age]).to be_present
+    end
+  end
 end
