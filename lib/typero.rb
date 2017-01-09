@@ -76,9 +76,8 @@ module Typero
   def quick_set(value, type, opts={})
     type_klass = "Typero::#{type.to_s.classify}Type".constantize
     type_inst  = type_klass.new(opts)
-    type_inst.respond_to?(:get_set) ? type_inst.get_set(value) : set(value)
+    type_inst.set(value)
   end
-
 
   # Typero.validate_opts params, :ttl, :password
   # only :ttl, :password and allowed in hash

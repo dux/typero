@@ -15,6 +15,12 @@ module Typero
       value
     end
 
+    # sometimes we want to coarce values on get
+    # by default just copy
+    def get(list)
+      list
+    end
+
     # if value is blank?, trigger default
     # for example set it to false for boolean type and [] for array type
     def default
@@ -43,15 +49,14 @@ module Typero
     def get_value(instance)
       # get current var value
       value = instance.respond_to?('[]') ? instance[@name] : instance.instance_variable_get("@#{@name}")
-      if value.blank?
-        # if blank check for default
+      if value.nil?
         if @opts[:default]
           @opts[:default].class.to_s == 'Proc' ? @opts[:default].call(instance) : @opts[:default]
         else
           return default
         end
       else
-        value
+        get(value)
       end
     end
 
@@ -67,9 +72,15 @@ module Typero
         # search for unique fields on set, say for email
         # so it is not checked on save, it is checked on set
         if @opts[:uniq]
-          filter = instance.class.select(:id).where("#{@name}=?", value)
-          filter = filter.where('id<>?', instance.id) if instance.id
-          raise TypeError, @opts[:uniq].class == TrueClass ? "Field #{@name} is uniqe and allready exists" : @opts[:uniq] if filter.first
+          not_unique = false
+          if instance.respond_to?(:is_unique_field?)
+            not_unique = !instance.is_unique_field?(@name, value)
+          else
+            filter = instance.class.select(:id).where("#{@name}=?", value)
+            filter = filter.where('id<>?', instance.id) if instance.id
+            not_unique = true if filter.first
+          end
+          raise TypeError, @opts[:uniq].class == TrueClass ? %[Field #{@name} is uniqe and value "#{value}" allready exists] : @opts[:uniq] if not_unique
         end
 
         validate(value)

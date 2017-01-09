@@ -13,10 +13,10 @@ class Test
   attribute :name
   attribute :speed, type: Float, min:10, max:200
   attribute :email, :email, req: true, uniq:'Email is allready regstred'
+  attribute :emails, Array[:email]  # create list of emails
   attribute :age, Integer, nil: false
   attribute :eyes, default: 'blue'
-  attribute :maxage, :default=>lambda { |o| o.age * 5 }
-  attribute :emails, Array[:email]  # create list of emails
+  attribute :maxage, default: lambda { |o| o.age * 5 }
   attribute :tags,   Array[:label]  # create list of tags
 end
 

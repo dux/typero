@@ -3,6 +3,7 @@
 # use whenever you want to check hash values of variables
 # in Lux FW, used in api cell
 
+# Typero::Schema.load_schema(email:{ req: true, type: :email}, age: { type: Integer, req: false })
 module Typero
   class Schema
     class << self
@@ -55,6 +56,9 @@ module Typero
           Typero.validate!(value, type, check_hash) { |msg|
             errors[field] = "#{field.to_s.capitalize}: #{msg}"
           }
+
+          # coerce value
+          hash[field] = Typero.quick_set(value, type) if value.present?
         end
       end
       errors.keys.length > 0  ? errors : nil

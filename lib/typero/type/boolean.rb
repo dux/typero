@@ -5,8 +5,7 @@ module Typero
     end
 
     def set(value)
-      value = false if [0, '0', 'false'].index(value)
-      !!value
+      [true, 1, '1', 'true'].index(value) ? true : false
     end
   end
 end

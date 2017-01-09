@@ -4,6 +4,10 @@ module Typero
       value.to_f
     end
 
+    def get(value)
+      value.to_f
+    end
+
     def validate(input)
       value = set(input)
       raise TypeError, "min lenght is #{@opts[:min]}" if @opts[:min] && value < @opts[:min]
