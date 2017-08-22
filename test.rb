@@ -1,22 +1,19 @@
 require_relative './lib/typero'
 require 'active_support/core_ext/string' unless respond_to?(:capitalize)
 
-class Test
-  include Typero::Hash
-  include Typero::Instance
+schema = Typero.new({
+  email: { req: true, type: :email },
+  age:   { type: Integer, min: 18, max: 150 }
+})
 
-  attribute :name
-  attribute :speed, type: Float, min:10, max:200
-  attribute :email, :email, req: true
-  attribute :email_nil, :email
-  attribute :emails, Array[:email]
-  attribute :age, Integer, nil:false
-  attribute :eyes, default:'blue'
-  attribute :maxage, default: lambda { |o| o.age * 5 }
-  attribute :tags, Array[:label]
+# or
+
+schema = Typero.new do
+  set :email, req: true, type: :email
+  set :age, Integer, min: 18, max: 150
 end
 
-t = Test.new
-t.emails = ['rejotl@gmail.com', 'duxnet.hr']
+schema.validate({ email:'dux@net.hr', age:'40' }) # {}
+schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
 
-p t.emails
+# puts errors
