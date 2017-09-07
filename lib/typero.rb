@@ -113,7 +113,8 @@ class Typero
           end
         end
       elsif opts[:req]
-        add_error field, 'is required' if opts[:req].class == TrueClass
+        msg = opts[:req].class == TrueClass ? 'is required' : opts[:req]
+        add_error field, msg
       end
     end
 
