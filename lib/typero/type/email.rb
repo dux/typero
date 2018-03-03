@@ -7,7 +7,7 @@ class Typero::EmailType < Typero::Type
   def validate
     raise TypeError, 'is not having at least 8 characters' unless @value.to_s.length > 7
     raise TypeError, 'is missing @' unless @value.include?('@')
-    raise TypeError, 'is in wrong format' unless @value =~ /^[\+\w\-\.]+\@[\w\-\.]+$/i
+    # raise TypeError, "[#{@value}] is in wrong format" unless @value =~ /^[\+\w\-\.]+\@[\w\-\.]+$/i
   end
 
 end

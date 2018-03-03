@@ -31,6 +31,13 @@ class Typero
       h[field]
     end
 
+    # Typero.set(:label, 'Foo bar') -> "foo-bar"
+    def set type, value, opts={}
+      klass = 'Typero::%sType' % type.to_s.gsub(/[^\w]/,'').classify
+      check = klass.constantize.new value, opts
+      check.set
+    end
+
     def cache
       @@cache ||= {}
     end

@@ -2,7 +2,7 @@ class Typero::Type
   attr_accessor :opts
   attr_accessor :value
 
-  def initialize(value, opts)
+  def initialize(value, opts={})
     @value = value
     @opts  = opts
   end

@@ -1,6 +1,6 @@
 class Typero::LabelType < Typero::Type
   def set
-    @value = @value.to_s.gsub(/\s+/,'-').gsub(/[^\w\-]/,'')[0,30].downcase
+    @value = @value.to_s.gsub(/\s+/,'-').gsub(/[^\w\-]/,'').gsub(/\-+/, '-')[0,30].downcase
   end
 
   def validate
