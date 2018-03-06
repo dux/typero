@@ -91,7 +91,7 @@ class Typero
 
   # used in dsl to define value
   def set field, type=String, opts={}
-    klass = '::Typero::%sType' % type.to_s.gsub(/[^\w]/,'').classify
+    klass = 'Typero::%sType' % type.to_s.gsub(/[^\w]/,'').classify
     klass.constantize
 
     opts = type.is_a?(Hash) ? type : opts.merge(type: type)
