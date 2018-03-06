@@ -52,6 +52,23 @@ class Typero
     instance_exec &block if block
   end
 
+  # convert
+  # integer :age
+  # set :age, type: :integer
+  # email :email
+  # set :email, [:emails]
+  # email [:emails]
+  def method_missing name, *args, &block
+    field = args.shift
+
+    if field.class == Array
+      field = field.first
+      name  = [name]
+    end
+
+    set field, type=name, *args
+  end
+
   # coerce opts values
   def parse_option opts
     opts[:type] ||= 'string'
@@ -74,6 +91,9 @@ class Typero
 
   # used in dsl to define value
   def set field, type=String, opts={}
+    klass = '::Typero::%sType' % type.to_s.gsub(/[^\w]/,'').classify
+    klass.constantize
+
     opts = type.is_a?(Hash) ? type : opts.merge(type: type)
 
     @rules[field] = parse_option opts

@@ -17,14 +17,14 @@ describe Typero do
     @test  = Test.new
 
     @rules = Typero.new do
-      set :name
-      set :speed, type:Float, min:10, max:200
-      set :email, :email, req: true
-      set :email_nil, :email
-      set :emails, Array[:email]
+      string  :name
+      float   :speed, min:10, max:200
+      email   :email, req: true
+      email   :email_nil
+      email   [:emails]
+      label   [:tags]
+      string  :eyes, default:'blue'
       set :age, Integer, req: true
-      set :eyes, default:'blue'
-      set :tags, Array[:label]
     end
   end
 

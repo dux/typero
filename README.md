@@ -15,15 +15,13 @@ end
 # we can say
 class User < Sequel::Model
   attributes do
-    set :name, String, req:true, min: 3
-    set :email, :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
-    set :speed, type: Float, min:10, max:200
-    set :email, :email, req: true, uniq:'Email is allready regstred'
-    set :emails, Array[:email]  # ensure we have list of emails
-    set :age, Integer, nil: false
-    set :eyes, default: 'blue'
-    set :maxage, default: lambda { |o| o.age * 5 }
-    set :tags,   Array[:label]  # create list of tags
+    string  :name, req:true, min: 3
+    email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
+    float   :speed, min:10, max:200
+    integer :age, nil: false
+    string  :eyes, default: 'blue'
+    integer :maxage, default: lambda { |o| o.age * 5 }
+    email   [:emails]  # ensure we have list of emails, field type :email
   end
 end
 ```
@@ -45,6 +43,13 @@ schema = Typero.new({
 schema = Typero.new do
   set :email, req: true, type: :email
   set :age, Integer, min: 18, max: 150
+end
+
+# or
+
+schema = Typero.new do
+  email   :email, req: true
+  integer :age, min: 18, max: 150
 end
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
