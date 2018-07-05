@@ -52,9 +52,7 @@ class Typero
     instance_exec &block if block
   end
 
-  # convert
-  # integer :age
-  # set :age, type: :integer
+  # set :age, type: :integer -> integer :age
   # email :email
   # set :email, [:emails]
   # email [:emails]
@@ -81,7 +79,7 @@ class Typero
 
     opts[:type] = opts[:type].to_s.downcase
 
-    allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc]
+    allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
     opts.keys.each do |key|
       raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
     end
@@ -109,8 +107,12 @@ class Typero
     if @errors[field]
       @errors[field] += ', %s' % msg
     else
-      field_name = field.to_s.sub(/_id$/,'').humanize
-      @errors[field] = '%s %s' % [field_name, msg]
+      if msg[0,1].downcase == msg[0,1]
+        field_name = field.to_s.sub(/_id$/,'').humanize
+        msg = '%s %s' % [field_name, msg]
+      end
+
+      @errors[field] = msg
     end
   end
 
