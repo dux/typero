@@ -4,6 +4,14 @@
 #   set :skills, [:email], min: 2
 # end
 #
+# or
+#
+# rules = Typero.new do
+#   string :name, req: true
+#   email :email, req: true
+#   email [:skills], min: 2
+# end
+#
 # errors = rules.validate @object
 # rules.valid?
 # rules.validate(@object) { |errors| ... }
@@ -15,7 +23,7 @@ class Typero
 
   class << self
     # validate single value in type
-    def validate value, type, opts={}
+    def validate type, value, opts={}
       field = type.to_s.tableize.singularize.to_sym
 
       # we need to have pointer to hash, so value can be changed (coerced) if needed
@@ -31,10 +39,10 @@ class Typero
       h[field]
     end
 
+    # check and coerce value
     # Typero.set(:label, 'Foo bar') -> "foo-bar"
     def set type, value, opts={}
-      klass = 'Typero::%sType' % type.to_s.gsub(/[^\w]/,'').classify
-      check = klass.constantize.new value, opts
+      check = Typero::Type.load(type).new value, opts
       check.set
     end
   end
@@ -92,9 +100,7 @@ class Typero
     opts = type.is_a?(Hash) ? type : opts.merge(type: type)
 
     opts[:type] ||= :string
-    klass = 'Typero::%sType' % opts[:type].to_s.gsub(/[^\w]/,'').classify
-    klass.constantize
-
+    klass = Typero::Type.load opts[:type]
     @rules[field] = parse_option opts
   end
 

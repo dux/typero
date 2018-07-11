@@ -4,10 +4,10 @@ class Typero::LabelType < Typero::Type
   end
 
   def validate
-    raise TypeError, unallowed_characters_error unless @value =~ /^[\w\-]+$/
+    raise TypeError, error_for(:unallowed_characters_error) unless @value =~ /^[\w\-]+$/
   end
 
   def unallowed_characters_error
-    'Label is having unallowed characters'
+    'label is having unallowed characters'
   end
 end

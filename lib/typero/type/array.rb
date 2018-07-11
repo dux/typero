@@ -13,8 +13,8 @@ class Typero::ArrayType < Typero::Type
 
     if type = @opts[:array_type]
       @value.map! { |el|
-        Typero.validate(el, type) { |msg|
-          raise TypeError.new "'%s' %s (value in list)" % [el, msg]
+        Typero.validate(type, el) { |msg|
+          raise TypeError.new "'%s' %s (%s)" % [el, msg, value_in_list_error]
         }
       }
     end
@@ -24,17 +24,21 @@ class Typero::ArrayType < Typero::Type
   end
 
   def validate
-    raise TypeError, min_length_error % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
-    raise TypeError, max_length_error % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
+    raise TypeError, error_for(:min_length) % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
+    raise TypeError, error_for(:max_length) % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
     true
   end
 
-  def min_length_error
-    'Min array lenght is %s elements'
+  def min_error
+    'min array lenght is %s elements'
   end
 
-  def max_length_error
-    'Max array lenght is %s elements'
+  def max_error
+    'max array lenght is %s elements'
+  end
+
+  def value_in_list_error
+    'value in list'
   end
 end
 

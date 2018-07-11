@@ -1,21 +1,22 @@
 class Typero::OibType < Typero::Type
+  # http://domagoj.eu/oib/
   def check? oib
     oib = oib.to_s
 
-    return false if (oib =~ /\d{11}/) != 0
-    return false if oib.length != 11
+    return false unless oib.match(/^[0-9]{11}$/)
 
-    a = 10
-    (0..9).each do |i|
-      a = (a + oib[i,1].to_i) % 10
-      a = 10 if a == 0
-      a = (a * 2) % 11
+    control_sum = (0..9).inject(10) do |middle, position|
+      middle += oib.at(position).to_i
+      middle %= 10
+      middle = 10 if middle == 0
+      middle *= 2
+      middle %= 11
     end
 
-    kontrolna = 11 - a
-    kontrolna = 0 if kontrolna == 10
+    control_sum = 11 - control_sum
+    control_sum = 0 if control_sum == 10
 
-    kontrolna == oib[10,1].to_i
+    return control_sum == oib.at(10).to_i
   end
 
   def set
@@ -23,11 +24,11 @@ class Typero::OibType < Typero::Type
   end
 
   def validate
-    raise TypeError.new(not_an_oib_error) unless check?(@value)
+    raise TypeError.new(error_for(:not_an_oib_error)) unless check?(@value)
   end
 
   def not_an_oib_error
-    'Not an OIB'
+    'not in an OIB format'
   end
 end
 
