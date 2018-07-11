@@ -24,9 +24,17 @@ class Typero::ArrayType < Typero::Type
   end
 
   def validate
-    raise TypeError, 'Min array lenght is %s elements' % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
-    raise TypeError, 'Max array lenght is %s elements' % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
+    raise TypeError, min_length_error % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
+    raise TypeError, max_length_error % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
     true
+  end
+
+  def min_length_error
+    'Min array lenght is %s elements'
+  end
+
+  def max_length_error
+    'Max array lenght is %s elements'
   end
 end
 

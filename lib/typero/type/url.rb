@@ -4,7 +4,11 @@ class Typero::UrlType < Typero::Type
   end
 
   def validate
-    raise TypeError, 'URL is not starting with http' unless @value =~ /^https?:\/\/./
+    raise TypeError, not_starting_error unless @value =~ /^https?:\/\/./
+  end
+
+  def not_starting_error
+    'URL is not starting with http'
   end
 end
 

@@ -23,7 +23,11 @@ class Typero::OibType < Typero::Type
   end
 
   def validate
-    raise TypeError.new('Not an OIB') unless check?(@value)
+    raise TypeError.new(not_an_oib_error) unless check?(@value)
+  end
+
+  def not_an_oib_error
+    'Not an OIB'
   end
 end
 

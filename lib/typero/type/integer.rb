@@ -4,8 +4,16 @@ class Typero::IntegerType < Typero::Type
   end
 
   def validate
-    raise TypeError, 'min is %s, got %s' % [@opts[:min], @value] if @opts[:min] && @value < @opts[:min]
-    raise TypeError, 'max is %s, got %s' % [@opts[:max], @value] if @opts[:max] && @value > @opts[:max]
+    raise TypeError, min_error % [@opts[:min], @value] if @opts[:min] && @value < @opts[:min]
+    raise TypeError, max_error % [@opts[:max], @value] if @opts[:max] && @value > @opts[:max]
+  end
+
+  def min_error
+    'min is %s, got %s'
+  end
+
+  def max_error
+    'max is %s, got %s'
   end
 end
 

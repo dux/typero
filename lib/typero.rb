@@ -37,10 +37,6 @@ class Typero
       check = klass.constantize.new value, opts
       check.set
     end
-
-    def cache
-      @@cache ||= {}
-    end
   end
 
   ###
@@ -79,10 +75,14 @@ class Typero
 
     opts[:type] = opts[:type].to_s.downcase
 
-    allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
-    opts.keys.each do |key|
-      raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
-    end
+    opts[:required]    = opts[:req]  unless opts[:req].nil?
+    opts[:unique]      = opts[:uniq] unless opts[:uniq].nil?
+    opts[:description] = opts[:desc] unless opts[:desc].nil?
+
+    # allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
+    # opts.keys.each do |key|
+    #   raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
+    # end
 
     opts
   end
@@ -142,8 +142,8 @@ class Typero
             add_error field, e.message
           end
         end
-      elsif opts[:req]
-        msg = opts[:req].class == TrueClass ? 'is required' : opts[:req]
+      elsif opts[:required]
+        msg = opts[:required].class == TrueClass ? 'is required' : opts[:req]
         add_error field, msg
       end
     end

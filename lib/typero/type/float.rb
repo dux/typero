@@ -5,8 +5,16 @@ class Typero::FloatType < Typero::Type
   end
 
   def validate
-    raise TypeError, "min lenght is #{@opts[:min]}" if @opts[:min] && value < @opts[:min]
-    raise TypeError, "max lenght is #{@opts[:max]}" if @opts[:max] && value > @opts[:max]
+    raise TypeError, min_length_error if @opts[:min] && value < @opts[:min]
+    raise TypeError, max_length_error if @opts[:max] && value > @opts[:max]
+  end
+
+  def min_length_error
+    "min lenght is #{@opts[:min]}"
+  end
+
+  def max_length_error
+    "max lenght is #{@opts[:max]}"
   end
 
 end
