@@ -4,16 +4,15 @@ Checks types on save
 
 ### Example
 
-We can say
-
-```ruby
+```
+# we can say
 class User < Sequel::Model
   attributes do
-    string  :name,   req:true,  min: 3
-    email   :email,  req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
-    float   :speed,  min:10,    max:200
-    integer :age,    nil: false
-    string  :eyes,   default: 'blue'
+    string  :name, req:true, min: 3
+    email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
+    float   :speed, min:10, max:200
+    integer :age, nil: false
+    string  :eyes, default: 'blue'
     integer :maxage, default: lambda { |o| o.age * 5 }
     email   [:emails]  # ensure we have list of emails, field type :email
   end
@@ -54,7 +53,7 @@ schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @
 
 We will create custom type named :label (tag)
 
-```ruby
+```
 class Typero::LabelType < Typero::Type
   # default value for blank? == true values
   def default
@@ -78,7 +77,7 @@ Save block and check schema in before_save filter
 
 Example for Sequel
 
-```ruby
+```
 # with Sequel::Model adapter
 class Sequel::Model
   module ClassMethods
@@ -112,14 +111,18 @@ end
 
 ### Built in types and errors
 
+#### "date" type - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/date.rb)
+
+
+
 #### "string" type - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/string.rb)
 
 errors
-* max_length_error - max lenght is %s, you have %s
 * min_length_error - min lenght is %s, you have %s
+* max_length_error - max lenght is %s, you have %s
 ```
   attributes do
-    string :field, max_length_error: "min lenght is %s, you have %s", min_length_error: "min lenght is %s, you have %s"
+    string :field, min_length_error: "max lenght is %s, you have %s", max_length_error: "max lenght is %s, you have %s"
   end
 ```
 
@@ -135,6 +138,10 @@ errors
 ```
 
 
+#### "jsonb" type - [Typero::JsonbType](https://github.com/dux/typero/blob/master/lib/typero/type/jsonb.rb)
+
+
+
 #### "array" type - [Typero::ArrayType](https://github.com/dux/typero/blob/master/lib/typero/type/array.rb)
 
 errors
@@ -146,6 +153,10 @@ errors
     array :field, value_in_list_error: "max array lenght is %s elements", min_error: "max array lenght is %s elements", max_error: "max array lenght is %s elements"
   end
 ```
+
+
+#### "datetime" type - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/datetime.rb)
+
 
 
 #### "label" type - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/label.rb)
@@ -212,11 +223,15 @@ errors
 #### "float" type - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/float.rb)
 
 errors
-* max_length_error - max lenght is %s
 * min_length_error - min lenght is %s
+* max_length_error - max lenght is %s
 ```
   attributes do
-    float :field, max_length_error: "min lenght is %s", min_length_error: "min lenght is %s"
+    float :field, min_length_error: "max lenght is %s", max_length_error: "max lenght is %s"
   end
 ```
+
+
+#### "geography" type - [Typero::GeographyType](https://github.com/dux/typero/blob/master/lib/typero/type/geography.rb)
+
 

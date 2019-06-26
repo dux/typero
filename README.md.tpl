@@ -25,11 +25,11 @@ Can be used in plain, ActiveRecord or Sequel classes.
 
 Can be used as schema validator for custom implementations
 
-```
-schema = Typero.new({
-  email: { req: true, type: :email },
-  age:   { type: Integer, min: 18, max: 150 }
-})
+```ruby
+schema = Typero.new do
+  email   :email, req: true
+  integer :age,   min: 18, max: 150 #, min_error: "Minimal allowed age is 18 years."
+end
 
 # or
 
@@ -40,10 +40,10 @@ end
 
 # or
 
-schema = Typero.new do
-  email   :email, req: true
-  integer :age, min: 18, max: 150 #, min_error: "Minimal allowed age is 18 years."
-end
+schema = Typero.new({
+  email: { req: true, type: :email },
+  age:   { type: Integer, min: 18, max: 150 }
+})
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
