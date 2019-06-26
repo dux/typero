@@ -43,7 +43,7 @@ class Typero
     # Typero.set(:label, 'Foo bar') -> "foo-bar"
     def set type, value, opts={}
       check = Typero::Type.load(type).new value, opts
-      check.set
+      check.value
     end
   end
 
@@ -54,72 +54,6 @@ class Typero
     @rules = {}
     hash.each { |k, v| set(k, v) }
     instance_exec &block if block
-  end
-
-  # set :age, type: :integer -> integer :age
-  # email :email
-  # set :email, [:emails]
-  # email [:emails]
-  def method_missing name, *args, &block
-    field = args.shift
-
-    if field.class == Array
-      field = field.first
-      name  = [name]
-    end
-
-    set field, type=name, *args
-  end
-
-  # coerce opts values
-  def parse_option opts
-    opts[:type] ||= 'string'
-    opts[:req] = opts.delete(:required) unless opts[:required].nil?
-
-    if opts[:type].is_a?(Array)
-       opts[:array_type] = opts[:type][0] if opts[:type][0]
-       opts[:type] = 'array'
-    end
-
-    opts[:type] = opts[:type].to_s.downcase
-
-    opts[:required]    = opts[:req]  unless opts[:req].nil?
-    opts[:unique]      = opts[:uniq] unless opts[:uniq].nil?
-    opts[:description] = opts[:desc] unless opts[:desc].nil?
-
-    # allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
-    # opts.keys.each do |key|
-    #   raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
-    # end
-
-    opts
-  end
-
-  # used in dsl to define value
-  def set field, type=String, opts={}
-    opts = type.is_a?(Hash) ? type : opts.merge(type: type)
-
-    opts[:type] ||= :string
-    klass = Typero::Type.load opts[:type]
-    @rules[field] = parse_option opts
-  end
-
-  def safe_type type
-    type.to_s.gsub(/[^\w]/,'').classify
-  end
-
-  # adds error to array or prefixes with field name
-  def add_error field, msg
-    if @errors[field]
-      @errors[field] += ', %s' % msg
-    else
-      if msg[0,1].downcase == msg[0,1]
-        field_name = field.to_s.sub(/_id$/,'').humanize
-        msg = '%s %s' % [field_name, msg]
-      end
-
-      @errors[field] = msg
-    end
   end
 
   # validates any instance object or object with hash variable interface
@@ -165,8 +99,78 @@ class Typero
     errors = validate instance
     errors.keys.length == 0
   end
+
+  private
+
+  # adds error to array or prefixes with field name
+  def add_error field, msg
+    if @errors[field]
+      @errors[field] += ', %s' % msg
+    else
+      if msg[0,1].downcase == msg[0,1]
+        field_name = field.to_s.sub(/_id$/,'').humanize
+        msg = '%s %s' % [field_name, msg]
+      end
+
+      @errors[field] = msg
+    end
+  end
+
+  # used in dsl to define value
+  def set field, type=String, opts={}
+    opts = type.is_a?(Hash) ? type : opts.merge(type: type)
+    opts[:type] ||= :string
+    klass = Typero::Type.load opts[:type]
+    @rules[field] = parse_option opts
+  end
+
+  def safe_type type
+    type.to_s.gsub(/[^\w]/,'').classify
+  end
+
+  # coerce opts values
+  def parse_option opts
+    opts[:type] ||= 'string'
+
+    if opts[:type].is_a?(Array)
+       opts[:array_type] = opts[:type][0] if opts[:type][0]
+       opts[:type] = 'array'
+    end
+
+    opts[:type] = opts[:type].to_s.downcase
+
+    opts[:required]    = opts[:req]  unless opts[:req].nil?
+    opts[:unique]      = opts[:uniq] unless opts[:uniq].nil?
+    opts[:description] = opts[:desc] unless opts[:desc].nil?
+
+    # allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
+    # opts.keys.each do |key|
+    #   raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
+    # end
+
+    opts
+  end
+
+  # set :age, type: :integer -> integer :age
+  # email :email
+  # set :email, [:emails]
+  # email [:emails]
+  def method_missing name, *args, &block
+    field = args.shift
+
+    if field.class == Array
+      field = field.first
+      name  = [name]
+    end
+
+    name = args.shift if name == :set
+
+    set field, type=name, *args
+  end
 end
 
 require_relative 'typero/type'
 
-Dir['%s/typero/type/*.rb' % File.dirname(__FILE__)].each { |file| require file }
+Dir['%s/typero/type/*.rb' % __dir__].each do |file|
+  require file
+end

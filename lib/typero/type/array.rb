@@ -5,7 +5,10 @@ class Typero::ArrayType < Typero::Type
 
   def set
     unless @value.class.to_s.index('Array')
-      @value = @value.to_s.sub(/^\{/,'').sub(/\}$/,'').split(/\s*,\s*/)
+      @value = @value.to_s.sub(/^\{/,'').sub(/\}$/,'')
+
+      # split on new line and comma by default
+      @value = @value.split(/\s*[,\n]\s*/)
     end
 
     @value.uniq!

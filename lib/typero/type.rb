@@ -9,26 +9,19 @@ class Typero::Type
 
   ###
 
-  def initialize(value, opts={})
+  def initialize value, opts={}
     @value = value
     @opts  = opts
   end
 
   # default validation for any type
-  def validate(what)
+  def validate
     true
   end
 
+  # get error from option or the default one
   def error_for name
     @opts[name] || send(name)
-  end
-
-  def get
-    @value
-  end
-
-  def set
-    @value
   end
 
   def default

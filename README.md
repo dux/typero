@@ -4,8 +4,9 @@ Checks types on save
 
 ### Example
 
-```
-# we can say
+We can say
+
+```ruby
 class User < Sequel::Model
   attributes do
     string  :name, req:true, min: 3
@@ -25,7 +26,7 @@ Can be used in plain, ActiveRecord or Sequel classes.
 
 Can be used as schema validator for custom implementations
 
-```
+```ruby
 schema = Typero.new({
   email: { req: true, type: :email },
   age:   { type: Integer, min: 18, max: 150 }
@@ -53,7 +54,7 @@ schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @
 
 We will create custom type named :label (tag)
 
-```
+```ruby
 class Typero::LabelType < Typero::Type
   # default value for blank? == true values
   def default
@@ -77,7 +78,7 @@ Save block and check schema in before_save filter
 
 Example for Sequel
 
-```
+```ruby
 # with Sequel::Model adapter
 class Sequel::Model
   module ClassMethods
