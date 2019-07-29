@@ -18,5 +18,12 @@ class Typero::StringType < Typero::Type
   def max_length_error
     'max lenght is %s, you have %s'
   end
+
+  def db_field
+    opts = {}
+    opts[:limit] = @opts[:max] || 255
+    opts[:null]  = false if @opts[:req]
+    [:string, opts]
+  end
 end
 

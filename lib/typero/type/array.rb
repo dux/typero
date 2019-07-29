@@ -43,5 +43,13 @@ class Typero::ArrayType < Typero::Type
   def value_in_list_error
     'value in list'
   end
+
+  def db_field
+    check  = Typero::Type.load(@opts[:array_type]).new nil, {}
+    schema = check.db_field
+    schema[1] ||= {}
+    schema[1].merge! array: true
+    schema
+  end
 end
 

@@ -17,5 +17,11 @@ class Typero::EmailType < Typero::Type
     'is missing @'
   end
 
+  def db_field
+    opts = {}
+    opts[:limit] = @opts[:max] || 120
+    opts[:null]  = false if @opts[:req]
+    [:string, opts]
+  end
 end
 

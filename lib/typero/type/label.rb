@@ -10,4 +10,11 @@ class Typero::LabelType < Typero::Type
   def unallowed_characters_error
     'label is having unallowed characters'
   end
+
+  def db_field
+    opts = {}
+    opts[:null]  = false if @opts[:req]
+    opts[:limit] = 30
+    [:string, opts]
+  end
 end

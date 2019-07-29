@@ -6,8 +6,8 @@ class Typero::GeographyType < Typero::Type
     false
   end
 
-  def set
-    @value = [true, 1, '1', 'true', 'on'].include?(@value) ? true : false
+  def db_field
+    [:geography]
   end
 end
 

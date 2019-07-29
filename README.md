@@ -14,9 +14,24 @@ class User < Sequel::Model
     integer :age, nil: false
     string  :eyes, default: 'blue'
     integer :maxage, default: lambda { |o| o.age * 5 }
-    email   [:emails]  # ensure we have list of emails, field type :email
+    email   [:emails] # ensure we have list of emails, field type :email
+
+    db :timestamps
+    db :add_index, :email
   end
 end
+
+# and we can generate DB schema
+User.typero.db_schema
+# [:name, :string, {:limit=>255, :null=>false}],
+# [:email, :string, {:limit=>120, :null=>false}],
+# [:speed, :float, {}],
+# [:age, :integer, {}],
+# [:eyes, :string, {:limit=>255}],
+# [:maxage, :integer, {}],
+# [:emails, :string, {:limit=>120, :array=>true}],
+# [:timestamps],
+# [:add_index, :email]
 ```
 
 ### Usage

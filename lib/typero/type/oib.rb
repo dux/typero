@@ -30,5 +30,12 @@ class Typero::OibType < Typero::Type
   def not_an_oib_error
     'not in an OIB format'
   end
+
+  def db_field
+    opts = {}
+    opts[:null]  = false if @opts[:req]
+    opts[:limit] = 11
+    [:string, opts]
+  end
 end
 

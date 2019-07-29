@@ -10,5 +10,9 @@ class Typero::HashType < Typero::Type
   def not_hash_type_error
     'value is not hash type'
   end
+
+  def db_field
+    [:jsonb, {}]
+  end
 end
 

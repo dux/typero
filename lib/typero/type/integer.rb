@@ -15,5 +15,11 @@ class Typero::IntegerType < Typero::Type
   def max_value_error
     'max is %s, got %s'
   end
+
+  def db_field
+    opts = {}
+    opts[:null]  = false if @opts[:req]
+    [:integer, opts]
+  end
 end
 

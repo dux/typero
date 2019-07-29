@@ -17,5 +17,11 @@ class Typero::FloatType < Typero::Type
     "max lenght is %s"
   end
 
+  def db_field
+    opts = {}
+    opts[:null] = false if @opts[:req]
+    [:float, opts]
+  end
+
 end
 

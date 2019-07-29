@@ -10,5 +10,11 @@ class Typero::UrlType < Typero::Type
   def not_starting_error
     'URL is not starting with http'
   end
+
+  def db_field
+    opts = {}
+    opts[:null] = false if @opts[:req]
+    [:string, opts]
+  end
 end
 

@@ -52,6 +52,7 @@ class Typero
   # accepts dsl block to
   def initialize hash={}, &block
     @rules = {}
+    @db    = []
     hash.each { |k, v| set(k, v) }
     instance_exec &block if block
   end
@@ -100,6 +101,18 @@ class Typero
     errors.keys.length == 0
   end
 
+  # returns field, db_type, db_opts
+  def db_schema
+    out = @rules.inject([]) do |total, (field, opts)|
+      type, opts = Typero::Type.load(opts[:type]).new(nil, opts).db_field
+      total << [type, field, opts]
+    end
+
+    out += @db if @db[0]
+
+    out
+  end
+
   private
 
   # adds error to array or prefixes with field name
@@ -120,6 +133,7 @@ class Typero
   def set field, type=String, opts={}
     opts = type.is_a?(Hash) ? type : opts.merge(type: type)
     opts[:type] ||= :string
+    opts[:req]    = true if opts[:null].class == FalseClass
     klass = Typero::Type.load opts[:type]
     @rules[field] = parse_option opts
   end
@@ -149,6 +163,14 @@ class Typero
     # end
 
     opts
+  end
+
+
+  # pass values for db_schema only
+  # db :timestamps
+  # db :add_index, :code -> t.add_index :code
+  def db *args
+    @db.push args
   end
 
   # set :age, type: :integer -> integer :age
