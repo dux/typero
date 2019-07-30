@@ -14,14 +14,40 @@ class User < Sequel::Model
     integer :age, nil: false
     string  :eyes, default: 'blue'
     integer :maxage, default: lambda { |o| o.age * 5 }
-    email   [:emails]  # ensure we have list of emails, field type :email
+    email   [:emails] # ensure we have list of emails, field type :email
+
+    db :timestamps
+    db :add_index, :email
   end
 end
-```
+
+# and we can generate DB schema
+User.typero.db_schema
+# [:name, :string, {:limit=>255, :null=>false}],
+# [:email, :string, {:limit=>120, :null=>false}],
+# [:speed, :float, {}],
+# [:age, :integer, {}],
+# [:eyes, :string, {:limit=>255}],
+# [:maxage, :integer, {}],
+# [:emails, :string, {:limit=>120, :array=>true}],
+# [:timestamps],
+# [:add_index, :email]
+
+User.typero.rules
+# Hash
+# {
+#   "name": {
+#     "type": "string",
+#     "required": "City name is required"
+#   },
+#   "lon_lat": {
+#     "type": "point"
+#   },
+  ```
 
 ### Usage
 
-Can be used in plain, ActiveRecord or Sequel classes.
+Can be used in plain, ActiveRecord (adapter missing) or Sequel classes.
 
 Can be used as schema validator for custom implementations
 
@@ -51,7 +77,7 @@ schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @
 
 ### Create custom type
 
-We will create custom type named :label (tag)
+We will create custom type named :label
 
 ```
 class Typero::LabelType < Typero::Type
@@ -60,51 +86,13 @@ class Typero::LabelType < Typero::Type
     nil
   end
 
-  def set value
-    value.to_s.gsub(/[^\w\-]/,'')[0,30].downcase
+  def set
+    @value.to_s.gsub(/[^\w\-]/,'')[0,30].downcase
   end
 
-  def validate value
-    raise TypeError, "having unallowed characters" unless value =~ /^[\w\-]+$/
+  def validate
+    raise TypeError, "having unallowed characters" unless @value =~ /^[\w\-]+$/
     true
-  end
-end
-```
-
-### Implement in Sequel or ActiveRecord
-
-Save block and check schema in before_save filter
-
-Example for Sequel
-
-```
-# with Sequel::Model adapter
-class Sequel::Model
-  module ClassMethods
-    def attributes &block
-      self.instance_variable_set :@typero, Typero.new(&block)
-    end
-
-    def typero
-      self.instance_variable_get :@typero
-    end
-  end
-
-
-  module InstanceMethods
-    # calling typero! on any object will validate all fields
-    def check_attributes
-      typero = self.class.typero || return
-
-      typero.validate(self) do |name, err|
-        errors.add(name, err) unless (errors.on(name) || []).include?(err)
-      end
-    end
-
-    def validate
-      check_attributes
-      super
-    end
   end
 end
 ```

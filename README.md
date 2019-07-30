@@ -32,11 +32,22 @@ User.typero.db_schema
 # [:emails, :string, {:limit=>120, :array=>true}],
 # [:timestamps],
 # [:add_index, :email]
-```
+
+User.typero.rules
+# Hash
+# {
+#   "name": {
+#     "type": "string",
+#     "required": "City name is required"
+#   },
+#   "lon_lat": {
+#     "type": "point"
+#   },
+  ```
 
 ### Usage
 
-Can be used in plain, ActiveRecord or Sequel classes.
+Can be used in plain, ActiveRecord (adapter missing) or Sequel classes.
 
 Can be used as schema validator for custom implementations
 
@@ -66,7 +77,7 @@ schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @
 
 ### Create custom type
 
-We will create custom type named :label (tag)
+We will create custom type named :label
 
 ```
 class Typero::LabelType < Typero::Type
@@ -75,51 +86,13 @@ class Typero::LabelType < Typero::Type
     nil
   end
 
-  def set value
-    value.to_s.gsub(/[^\w\-]/,'')[0,30].downcase
+  def set
+    @value.to_s.gsub(/[^\w\-]/,'')[0,30].downcase
   end
 
-  def validate value
-    raise TypeError, "having unallowed characters" unless value =~ /^[\w\-]+$/
+  def validate
+    raise TypeError, "having unallowed characters" unless @value =~ /^[\w\-]+$/
     true
-  end
-end
-```
-
-### Implement in Sequel or ActiveRecord
-
-Save block and check schema in before_save filter
-
-Example for Sequel
-
-```
-# with Sequel::Model adapter
-class Sequel::Model
-  module ClassMethods
-    def attributes &block
-      self.instance_variable_set :@typero, Typero.new(&block)
-    end
-
-    def typero
-      self.instance_variable_get :@typero
-    end
-  end
-
-
-  module InstanceMethods
-    # calling typero! on any object will validate all fields
-    def check_attributes
-      typero = self.class.typero || return
-
-      typero.validate(self) do |name, err|
-        errors.add(name, err) unless (errors.on(name) || []).include?(err)
-      end
-    end
-
-    def validate
-      check_attributes
-      super
-    end
   end
 end
 ```
@@ -133,11 +106,11 @@ end
 #### "string" type - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/string.rb)
 
 errors
-* min_length_error - min lenght is %s, you have %s
 * max_length_error - max lenght is %s, you have %s
+* min_length_error - min lenght is %s, you have %s
 ```
   attributes do
-    string :field, min_length_error: "max lenght is %s, you have %s", max_length_error: "max lenght is %s, you have %s"
+    string :field, max_length_error: "min lenght is %s, you have %s", min_length_error: "min lenght is %s, you have %s"
   end
 ```
 
@@ -151,10 +124,6 @@ errors
     oib :field, not_an_oib_error: "not in an OIB format"
   end
 ```
-
-
-#### "jsonb" type - [Typero::JsonbType](https://github.com/dux/typero/blob/master/lib/typero/type/jsonb.rb)
-
 
 
 #### "array" type - [Typero::ArrayType](https://github.com/dux/typero/blob/master/lib/typero/type/array.rb)
@@ -171,6 +140,14 @@ errors
 
 
 #### "datetime" type - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/datetime.rb)
+
+
+
+#### "currency" type - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/currency.rb)
+
+
+
+#### "text" type - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/text.rb)
 
 
 
@@ -200,11 +177,11 @@ errors
 #### "integer" type - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/integer.rb)
 
 errors
-* min_value_error - min is %s, got %s
 * max_value_error - max is %s, got %s
+* min_value_error - min is %s, got %s
 ```
   attributes do
-    integer :field, min_value_error: "max is %s, got %s", max_value_error: "max is %s, got %s"
+    integer :field, max_value_error: "min is %s, got %s", min_value_error: "min is %s, got %s"
   end
 ```
 
@@ -231,6 +208,10 @@ errors
 ```
 
 
+#### "point" type - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/point.rb)
+
+
+
 #### "boolean" type - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/boolean.rb)
 
 
@@ -238,11 +219,11 @@ errors
 #### "float" type - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/float.rb)
 
 errors
-* min_length_error - min lenght is %s
 * max_length_error - max lenght is %s
+* min_length_error - min lenght is %s
 ```
   attributes do
-    float :field, min_length_error: "max lenght is %s", max_length_error: "max lenght is %s"
+    float :field, max_length_error: "min lenght is %s", min_length_error: "min lenght is %s"
   end
 ```
 
