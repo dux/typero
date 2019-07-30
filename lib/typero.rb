@@ -153,14 +153,9 @@ class Typero
 
     opts[:type] = opts[:type].to_s.downcase
 
-    opts[:required]    = opts[:req]  unless opts[:req].nil?
-    opts[:unique]      = opts[:uniq] unless opts[:uniq].nil?
-    opts[:description] = opts[:desc] unless opts[:desc].nil?
-
-    # allowed_names = [:req, :uniq, :protected, :type, :min, :max, :array_type, :default, :downcase, :desc, :label]
-    # opts.keys.each do |key|
-    #   raise ArgumentError.new('%s is not allowed as typero option' % key) unless allowed_names.index(key)
-    # end
+    opts[:required]    = opts.delete(:req)  unless opts[:req].nil?
+    opts[:unique]      = opts.delete(:uniq) unless opts[:uniq].nil?
+    opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
 
     opts
   end
@@ -196,3 +191,6 @@ require_relative 'typero/type'
 Dir['%s/typero/type/*.rb' % __dir__].each do |file|
   require file
 end
+
+# load Sequel adapter is Sequel is available
+require_relative './adapters/sequel' if defined?(Sequel)
