@@ -21,8 +21,9 @@ class Typero::StringType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:limit] = @opts[:max] || 255
-    opts[:null]  = false if @opts[:req]
+    opts[:limit]   = @opts[:max] || 255
+    opts[:null]    = false if @opts[:required]
+    opts[:default] = @opts[:default]
     [:string, opts]
   end
 end

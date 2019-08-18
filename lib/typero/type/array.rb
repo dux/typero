@@ -27,8 +27,8 @@ class Typero::ArrayType < Typero::Type
   end
 
   def validate
-    raise TypeError, error_for(:min_length) % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
-    raise TypeError, error_for(:max_length) % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
+    raise TypeError, error_for(:min_error) % @opts[:min] if @opts[:min] && @value.length < @opts[:min]
+    raise TypeError, error_for(:max_error) % @opts[:max] if @opts[:max] && @value.length > @opts[:max]
     true
   end
 

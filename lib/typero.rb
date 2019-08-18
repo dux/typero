@@ -84,7 +84,7 @@ class Typero
           end
         end
       elsif opts[:required]
-        msg = opts[:required].class == TrueClass ? 'is required' : opts[:req]
+        msg = opts[:required].class == TrueClass ? 'is required' : opts[:required]
         add_error field, msg
       end
     end
@@ -120,7 +120,7 @@ class Typero
     if @errors[field]
       @errors[field] += ', %s' % msg
     else
-      if msg[0,1].downcase == msg[0,1]
+      if msg && msg[0,1].downcase == msg[0,1]
         field_name = field.to_s.sub(/_id$/,'').humanize
         msg = '%s %s' % [field_name, msg]
       end
@@ -131,9 +131,13 @@ class Typero
 
   # used in dsl to define value
   def set field, type=String, opts={}
-    opts = type.is_a?(Hash) ? type : opts.merge(type: type)
-    opts[:type] ||= :string
-    opts[:req]    = true if opts[:null].class == FalseClass
+    field = field.to_sym
+    opts  = type.is_a?(Hash) ? type : opts.merge(type: type)
+    opts[:type]   ||= :string
+    opts[:required] = true if opts[:null].class == FalseClass
+
+    db :add_index, field if opts.delete(:index)
+
     klass = Typero::Type.load opts[:type]
     @rules[field] = parse_option opts
   end
@@ -166,6 +170,15 @@ class Typero
   # db :add_index, :code -> t.add_index :code
   def db *args
     @db.push args
+  end
+
+  def link klass, opts={}
+    # TODO: Add can? update check before save
+    integer '%s_id' % klass.to_s.tableize.singularize, opts
+  end
+
+  def hash name
+    set name, :hash
   end
 
   # set :age, type: :integer -> integer :age

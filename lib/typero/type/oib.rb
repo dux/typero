@@ -33,7 +33,7 @@ class Typero::OibType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:null]  = false if @opts[:req]
+    opts[:null]  = false if @opts[:required]
     opts[:limit] = 11
     [:string, opts]
   end

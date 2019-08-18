@@ -13,7 +13,7 @@ class Typero::UrlType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:null] = false if @opts[:req]
+    opts[:null] = false if @opts[:required]
     [:string, opts]
   end
 end

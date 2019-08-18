@@ -3,6 +3,10 @@ class Typero::HashType < Typero::Type
     {}
   end
 
+  def set
+    @value = @value.to_h
+  end
+
   def validate
     raise TypeError, error_for(:not_hash_type_error) unless @value.is_a?(Hash)
   end

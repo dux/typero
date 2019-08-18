@@ -19,7 +19,7 @@ class Typero::FloatType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:null] = false if @opts[:req]
+    opts[:null] = false if @opts[:required]
     [:float, opts]
   end
 

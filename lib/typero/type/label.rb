@@ -13,8 +13,7 @@ class Typero::LabelType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:null]  = false if @opts[:req]
-    opts[:limit] = 30
+    opts[:limit]   = 30
     [:string, opts]
   end
 end

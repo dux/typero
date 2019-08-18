@@ -18,7 +18,8 @@ class Typero::IntegerType < Typero::Type
 
   def db_field
     opts = {}
-    opts[:null]  = false if @opts[:req]
+    opts[:null]    = false if @opts[:required]
+    opts[:default] = @opts[:default]
     [:integer, opts]
   end
 end

@@ -20,7 +20,7 @@ class Typero::EmailType < Typero::Type
   def db_field
     opts = {}
     opts[:limit] = @opts[:max] || 120
-    opts[:null]  = false if @opts[:req]
+    opts[:null]  = false if @opts[:required]
     [:string, opts]
   end
 end
