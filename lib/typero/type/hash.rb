@@ -16,7 +16,9 @@ class Typero::HashType < Typero::Type
   end
 
   def db_field
-    [:jsonb, {}]
+    [:jsonb, {
+      null: false
+    }]
   end
 end
 

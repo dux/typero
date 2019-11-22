@@ -24,7 +24,8 @@ describe Typero do
       email   [:emails]
       label   [:tags]
       string  :eyes, default:'blue'
-      set :age, Integer, req: true
+
+      set     :age, Integer, req: true
     end
   end
 
@@ -114,6 +115,14 @@ describe Typero do
     it 'expect eyes to inherite default color' do
       @rules.validate(@test)
       expect(@test.eyes).to eq('blue')
+    end
+
+    it 'raises error when type not found' do
+      expect do
+        Typero.new do
+          kinky  :name
+        end
+      end.to raise_error ArgumentError
     end
   end
 end

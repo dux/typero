@@ -4,7 +4,12 @@ class Typero::Type
 
   def self.load name
     klass = 'Typero::%sType' % name.to_s.gsub(/[^\w]/,'').classify
-    klass.constantize
+
+    if const_defined? klass
+      klass.constantize
+    else
+      raise ArgumentError, 'Typero type "%s" is not defined (%s)' % [name, klass]
+    end
   end
 
   ###

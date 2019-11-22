@@ -1,3 +1,5 @@
+require_relative 'string'
+
 class Typero::TextType < Typero::StringType
   def db_field
     opts = {}
