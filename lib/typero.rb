@@ -17,8 +17,6 @@
 # rules.validate(@object) { |errors| ... }
 
 class Typero
-  attr_reader :rules
-
   VERSION = File.read File.expand_path '../.version', File.dirname(__FILE__)
 
   class << self
@@ -44,6 +42,17 @@ class Typero
     def set type, value, opts={}
       check = Typero::Type.load(type).new value, opts
       check.value
+    end
+
+    def schema table_name, &block
+      schema = Typero.new(&block)
+
+      if Lux.config.migrate
+        AutoMigrate.typero table_name, schema
+      else
+        klass = table_name.to_s.classify.constantize
+        klass.typero = schema
+      end
     end
   end
 
@@ -113,6 +122,20 @@ class Typero
     out
   end
 
+  # schema.rules
+  # schema.rules do |field, opts|
+  # schema.rules(:url) do |field, opts|
+  def rules filter=nil, &block
+    return @rules unless filter
+    out = @rules
+    out = out.select { |k,v| v[:type].to_s == filter.to_s || v[:array_type].to_s == filter.to_s } if filter
+    return out unless block_given?
+
+    for k, v in out
+      yield k, v
+    end
+  end
+
   private
 
   # adds error to array or prefixes with field name
@@ -131,6 +154,8 @@ class Typero
 
   # used in dsl to define value
   def set field, type=String, opts={}
+    raise "Field name not given (Typero)" unless field
+
     field = field.to_sym
     opts  = type.is_a?(Hash) ? type : opts.merge(type: type)
     opts[:type]   ||= :string
@@ -164,7 +189,6 @@ class Typero
     opts
   end
 
-
   # pass values for db_schema only
   # db :timestamps
   # db :add_index, :code -> t.add_index :code
@@ -173,6 +197,8 @@ class Typero
   end
 
   def link klass, opts={}
+    klass.is! Class
+
     # TODO: Add can? update check before save
     integer '%s_id' % klass.to_s.tableize.singularize, opts
   end

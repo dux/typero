@@ -2,18 +2,7 @@
 
 module Sequel::Plugins::TyperoAttributes
   module ClassMethods
-    def attributes opts={}, &block
-      instance_variable_set :@typero, Typero.new(&block)
-
-      # attributes migrate: true do ...
-      if opts[:migrate] && defined?(Lux) && Lux.config.migrate
-        AutoMigrate.typero to_s.tableize.to_sym
-      end
-    end
-
-    def typero
-      instance_variable_get :@typero
-    end
+    attr_accessor :typero
   end
 
   module InstanceMethods
@@ -27,6 +16,8 @@ module Sequel::Plugins::TyperoAttributes
 
       # this are rules unique to database, so we check them here
       typero.rules.each do |field, rule|
+        self[field] ||= {} if rule[:type] == 'hash'
+
         # check uniqe fields
         if rule[:unique]
           id    = self[:id] || 0
