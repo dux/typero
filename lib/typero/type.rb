@@ -5,13 +5,15 @@ class Typero
     attr_accessor :opts
     attr_accessor :value
 
-    def self.load name
-      klass = 'Typero::%sType' % name.to_s.gsub(/[^\w]/,'').classify
+    class << self
+      def load name
+        klass = 'Typero::%sType' % name.to_s.gsub(/[^\w]/,'').classify
 
-      if const_defined? klass
-        klass.constantize
-      else
-        raise ArgumentError, 'Typero type "%s" is not defined (%s)' % [name, klass]
+        if const_defined? klass
+          klass.constantize
+        else
+          raise ArgumentError, 'Typero type "%s" is not defined (%s)' % [name, klass]
+        end
       end
     end
 
