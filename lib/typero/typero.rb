@@ -28,8 +28,9 @@ class Typero
       # we need to have pointer to hash, so value can be changed (coerced) if needed
       h = { field => value }
 
-      rule = new
-      rule.set field, type, opts
+      rule = new do
+        set field, type, opts
+      end
 
       if error = rule.validate(h)[field]
         block_given? ? yield(error) : raise(TypeError.new(error))
