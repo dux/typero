@@ -46,6 +46,13 @@ class Typero
       check.value
     end
 
+    # list loaded classes
+    def list type=nil
+      SCHEMAS
+        .select { |k, v| type ? v[1] == type : true; }
+        .keys
+    end
+
     # def schema table_name, &block
     #   schema = Typero.new(&block)
 
@@ -62,15 +69,22 @@ class Typero
 
   # accepts dsl block to
   def initialize name=nil, &block
+    type = :default
+
+    if name.is_a?(Hash)
+      type = name.keys.first
+      name = name.values.first
+    end
+
     if block_given?
       @schema = Schema.new &block
 
       if name
-        SCHEMAS[name_fix(name)] = @schema
+         SCHEMAS[name_fix(name)] = [@schema, type]
       end
     elsif name
       schema_name = name_fix(name)
-      @schema = SCHEMAS[schema_name] || raise(ArgumentError.new('Schema nemed "%s" not found (%s)' % [schema_name, name]))
+      @schema = SCHEMAS[schema_name][0] || raise(ArgumentError.new('Schema nemed "%s" not found (%s)' % [schema_name, name]))
     else
       raise ArgumentError, 'No block or schema name given'
     end
@@ -127,7 +141,7 @@ class Typero
       total << [type, field, opts]
     end
 
-    out += @db if @db[0]
+    out += @db if @db
 
     out
   end
