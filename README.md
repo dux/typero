@@ -6,19 +6,20 @@ Checks types on save
 
 ```
 # we can say
-class User < Sequel::Model
-  attributes do
-    string  :name, req:true, min: 3
-    email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
-    float   :speed, min:10, max:200
-    integer :age, nil: false
-    string  :eyes, default: 'blue'
-    integer :maxage, default: lambda { |o| o.age * 5 }
-    email   [:emails] # ensure we have list of emails, field type :email
+Typero.new :user do
+  string  :name, req:true, min: 3
+  email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
+  float   :speed, min:10, max:200
+  integer :age, nil: false
+  string  :eyes, default: 'blue'
+  integer :maxage, default: lambda { |o| o.age * 5 }
+  email   [:emails] # ensure we have list of emails, field type :email
 
-    db :timestamps
-    db :add_index, :email
-  end
+  db :timestamps
+  db :add_index, :email
+end
+
+class User < Sequel::Model
 end
 
 # and we can generate DB schema
@@ -33,7 +34,9 @@ User.typero.db_schema
 # [:timestamps],
 # [:add_index, :email]
 
-User.typero.rules
+# User.typero.rules
+# or
+# Typero.new(:user).rules
 # Hash
 # {
 #   "name": {
@@ -66,10 +69,9 @@ end
 
 # or
 
-schema = Typero.new({
-  email: { req: true, type: :email },
-  age:   { type: Integer, min: 18, max: 150 }
-})
+schema = Typero.new :class_ref
+schema = Typero.new 'ClassRef'
+schema = Typero.new ClassRef
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
@@ -99,6 +101,17 @@ end
 
 ### Built in types and errors
 
+#### "image" type - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/image.rb)
+
+errors
+* not_starting_error - URL is not starting with http
+```
+  attributes do
+    image :field, not_starting_error: "URL is not starting with http"
+  end
+```
+
+
 #### "date" type - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/date.rb)
 
 
@@ -106,11 +119,11 @@ end
 #### "string" type - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/string.rb)
 
 errors
-* max_length_error - max lenght is %s, you have %s
 * min_length_error - min lenght is %s, you have %s
+* max_length_error - max lenght is %s, you have %s
 ```
   attributes do
-    string :field, max_length_error: "min lenght is %s, you have %s", min_length_error: "min lenght is %s, you have %s"
+    string :field, min_length_error: "max lenght is %s, you have %s", max_length_error: "max lenght is %s, you have %s"
   end
 ```
 
@@ -165,11 +178,11 @@ errors
 #### "email" type - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/email.rb)
 
 errors
-* not_8_chars_error - is not having at least 8 characters
 * missing_monkey_error - is missing @
+* not_8_chars_error - is not having at least 8 characters
 ```
   attributes do
-    email :field, not_8_chars_error: "is missing @", missing_monkey_error: "is missing @"
+    email :field, missing_monkey_error: "is not having at least 8 characters", not_8_chars_error: "is not having at least 8 characters"
   end
 ```
 
@@ -177,11 +190,11 @@ errors
 #### "integer" type - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/integer.rb)
 
 errors
-* max_value_error - max is %s, got %s
 * min_value_error - min is %s, got %s
+* max_value_error - max is %s, got %s
 ```
   attributes do
-    integer :field, max_value_error: "min is %s, got %s", min_value_error: "min is %s, got %s"
+    integer :field, min_value_error: "max is %s, got %s", max_value_error: "max is %s, got %s"
   end
 ```
 
@@ -219,15 +232,11 @@ errors
 #### "float" type - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/float.rb)
 
 errors
-* max_length_error - max lenght is %s
 * min_length_error - min lenght is %s
+* max_length_error - max lenght is %s
 ```
   attributes do
-    float :field, max_length_error: "min lenght is %s", min_length_error: "min lenght is %s"
+    float :field, min_length_error: "max lenght is %s", max_length_error: "max lenght is %s"
   end
 ```
-
-
-#### "geography" type - [Typero::GeographyType](https://github.com/dux/typero/blob/master/lib/typero/type/geography.rb)
-
 

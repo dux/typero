@@ -6,19 +6,20 @@ Checks types on save
 
 ```
 # we can say
-class User < Sequel::Model
-  attributes do
-    string  :name, req:true, min: 3
-    email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
-    float   :speed, min:10, max:200
-    integer :age, nil: false
-    string  :eyes, default: 'blue'
-    integer :maxage, default: lambda { |o| o.age * 5 }
-    email   [:emails] # ensure we have list of emails, field type :email
+Typero.new :user do
+  string  :name, req:true, min: 3
+  email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
+  float   :speed, min:10, max:200
+  integer :age, nil: false
+  string  :eyes, default: 'blue'
+  integer :maxage, default: lambda { |o| o.age * 5 }
+  email   [:emails] # ensure we have list of emails, field type :email
 
-    db :timestamps
-    db :add_index, :email
-  end
+  db :timestamps
+  db :add_index, :email
+end
+
+class User < Sequel::Model
 end
 
 # and we can generate DB schema
@@ -33,7 +34,9 @@ User.typero.db_schema
 # [:timestamps],
 # [:add_index, :email]
 
-User.typero.rules
+# User.typero.rules
+# or
+# Typero.new(:user).rules
 # Hash
 # {
 #   "name": {
@@ -66,10 +69,9 @@ end
 
 # or
 
-schema = Typero.new({
-  email: { req: true, type: :email },
-  age:   { type: Integer, min: 18, max: 150 }
-})
+schema = Typero.new :class_ref
+schema = Typero.new 'ClassRef'
+schema = Typero.new ClassRef
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
