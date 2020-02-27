@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../fixtures/test'
+require_relative '../fixtures/all'
 
 describe Typero do
   describe 'Class access' do
