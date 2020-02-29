@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 require_relative '../fixtures/all'
 
 describe Typero do
@@ -17,6 +17,7 @@ describe Typero do
       expect(schema[5]).to eq([:string, :tags, { array: true, limit: 30}])
       expect(schema[6]).to eq([:string, :eyes, { default: 'blue', limit: 255}])
       expect(schema[7]).to eq([:integer, :age, { default: nil, null: false}])
+      expect(schema.last).to eq([:timestamps])
     end
   end
 end

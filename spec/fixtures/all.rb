@@ -38,6 +38,8 @@ Typero.new :test do
   datetime :datetime
   date     :point
   datetime :url
+
+  db :timestamps
 end
 
 Typero.new model: TestFoo do

@@ -141,7 +141,7 @@ class Typero
       total << [type, field, opts]
     end
 
-    out += @db if @db
+    out += @schema.db_rules
 
     out
   end

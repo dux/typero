@@ -1,3 +1,4 @@
+require 'awesome_print'
 require 'active_support/all'
 
 require_relative '../lib/typero'

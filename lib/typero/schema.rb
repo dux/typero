@@ -2,11 +2,11 @@
 
 class Typero
   class Schema
-    attr_accessor :rules
+    attr_reader :rules, :db_rules
 
     def initialize &block
-      @db    = []
-      @rules = {}
+      @db_rules = []
+      @rules    = {}
       instance_exec &block
     end
 
@@ -49,7 +49,7 @@ class Typero
     # db :timestamps
     # db :add_index, :code -> t.add_index :code
     def db *args
-      @db.push args
+      @db_rules.push args
     end
 
     def link klass, opts={}
