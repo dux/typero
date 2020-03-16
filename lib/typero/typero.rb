@@ -39,6 +39,14 @@ class Typero
       h[field]
     end
 
+    def name_fix name
+      if name.is_a?(Symbol)
+        name.to_s.classify if name.is_a?(Symbol)
+      else
+        name.to_s
+      end
+    end
+
     # check and coerce value
     # Typero.set(:label, 'Foo bar') -> "foo-bar"
     def set type, value, opts={}
@@ -51,6 +59,11 @@ class Typero
       SCHEMAS
         .select { |k, v| type ? v[1] == type : true; }
         .keys
+    end
+
+    def defined? name
+      shema_name = name_fix name
+      !!SCHEMAS[shema_name]
     end
 
     # def schema table_name, &block
@@ -80,11 +93,16 @@ class Typero
       @schema = Schema.new &block
 
       if name
-         SCHEMAS[name_fix(name)] = [@schema, type]
+         SCHEMAS[self.class.name_fix(name)] = [@schema, type]
       end
     elsif name
-      schema_name = name_fix(name)
-      @schema = SCHEMAS[schema_name][0] || raise(ArgumentError.new('Schema nemed "%s" not found (%s)' % [schema_name, name]))
+      schema_name = self.class.name_fix(name)
+
+      unless SCHEMAS[schema_name]
+        raise(ArgumentError.new('Schema nemed "%s" not found (%s)' % [schema_name, name]))
+      else
+        @schema = SCHEMAS[schema_name][0]
+      end
     else
       raise ArgumentError, 'No block or schema name given'
     end
@@ -178,14 +196,6 @@ class Typero
 
   def safe_type type
     type.to_s.gsub(/[^\w]/,'').classify
-  end
-
-  def name_fix name
-    if name.is_a?(Symbol)
-      name.to_s.classify if name.is_a?(Symbol)
-    else
-      name.to_s
-    end
   end
 end
 

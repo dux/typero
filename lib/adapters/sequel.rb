@@ -2,13 +2,15 @@
 
 module Sequel::Plugins::TyperoAttributes
   module ClassMethods
-    attr_accessor :typero
+    def typero
+      Typero.new self
+    end
   end
 
   module InstanceMethods
     # calling typero! on any object will validate all fields
     def typero! field_name=nil
-      typero = self.class.typero || return
+      typero = self.class.typero
 
       typero.validate(self) do |name, err|
         errors.add(name, err) unless (errors.on(name) || []).include?(err)
