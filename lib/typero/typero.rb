@@ -61,21 +61,11 @@ class Typero
         .keys
     end
 
+    # check if schema is defined
     def defined? name
       shema_name = name_fix name
       !!SCHEMAS[shema_name]
     end
-
-    # def schema table_name, &block
-    #   schema = Typero.new(&block)
-
-    #   if Lux.config.migrate
-    #     AutoMigrate.typero table_name, schema
-    #   else
-    #     klass = table_name.to_s.classify.constantize
-    #     klass.typero = schema
-    #   end
-    # end
   end
 
   ###
@@ -99,7 +89,7 @@ class Typero
       schema_name = self.class.name_fix(name)
 
       unless SCHEMAS[schema_name]
-        raise(ArgumentError.new('Schema nemed "%s" not found (%s)' % [schema_name, name]))
+        raise(ArgumentError.new('Schema named "%s" not found (%s)' % [schema_name, name]))
       else
         @schema = SCHEMAS[schema_name][0]
       end
