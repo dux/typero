@@ -3,7 +3,6 @@
 
 class Typero::PointType < Typero::Type
   def set
-    ap @value
     if @value.present?
       if @value.include?('/@')
         point = @value.split('/@', 2).last.split(',')

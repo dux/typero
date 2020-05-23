@@ -10,6 +10,8 @@ module Sequel::Plugins::TyperoAttributes
   module InstanceMethods
     # calling typero! on any object will validate all fields
     def typero! field_name=nil
+      return unless Typero.defined?(self.class)
+
       typero = self.class.typero
 
       typero.validate(self) do |name, err|
