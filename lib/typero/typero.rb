@@ -17,135 +17,82 @@
 # rules.validate(@object) { |errors| ... }
 
 class Typero
-  SCHEMAS = {}
-  VERSION = File.read File.expand_path '../../.version', File.dirname(__FILE__)
+  VERSION = File.read File.expand_path "../../.version", File.dirname(__FILE__)
 
   class << self
-    # validate single value in type
-    def validate type, value, opts={}
-      field = type.to_s.tableize.singularize.to_sym
-
-      # we need to have pointer to hash, so value can be changed (coerced) if needed
-      h = { field => value }
-
-      rule = new do
-        set field, type, opts
-      end
-
-      if error = rule.validate(h)[field]
-        block_given? ? yield(error) : raise(TypeError.new(error))
-      end
-
-      h[field]
-    end
-
-    def name_fix name
-      if name.is_a?(Symbol)
-        name.to_s.classify if name.is_a?(Symbol)
-      else
-        name.to_s
-      end
-    end
-
     # check and coerce value
     # Typero.set(:label, 'Foo bar') -> "foo-bar"
-    def set type, value, opts={}
+    def set(type, value, opts = {})
       check = Typero::Type.load(type).new value, opts
       check.value
-    end
-
-    # list loaded classes
-    def list type=nil
-      SCHEMAS
-        .select { |k, v| type ? v[1] == type : true; }
-        .keys
-    end
-
-    # check if schema is defined
-    def defined? name
-      shema_name = name_fix name
-      !!SCHEMAS[shema_name]
     end
   end
 
   ###
 
   # accepts dsl block to
-  def initialize name=nil, &block
-    type = :default
-
-    if name.is_a?(Hash)
-      type = name.keys.first
-      name = name.values.first
-    end
-
-    if block_given?
-      @schema = Schema.new &block
-
-      if name
-         SCHEMAS[self.class.name_fix(name)] = [@schema, type]
-      end
-    elsif name
-      schema_name = self.class.name_fix(name)
-
-      unless SCHEMAS[schema_name]
-        raise(ArgumentError.new('Schema named "%s" not found (%s)' % [schema_name, name]))
-      else
-        @schema = SCHEMAS[schema_name][0]
-      end
-    else
-      raise ArgumentError, 'No block or schema name given'
-    end
+  def initialize &block
+    raise "Params not defined" unless block_given?
+    @schema = Params.new &block
   end
 
-  # validates any instance object or object with hash variable interface
+  # validates any instance object with hash variable interface
   # it also coarces values
-  def validate instance
+  def validate object
+    @object = object
     @errors = {}
 
     @schema.rules.each do |field, opts|
       # set value to default if value is blank and default given
-      instance[field] = opts[:default] if opts[:default] && instance[field].blank?
+      @object[field] = opts[:default] if opts[:default] && @object[field].blank?
 
       # get field value
-      value = instance[field]
+      value = @object[field]
 
-      if value.present?
-        klass = 'Typero::%sType' % safe_type(opts[:type])
-        check = klass.constantize.new value, opts
-        check.value = check.default if check.value.nil?
-
-        unless check.value.nil?
-          begin
-            check.set
-            check.validate
-            instance[field] = check.value
-          rescue TypeError => e
-            add_error field, e.message
-          end
+      if opts[:array]
+        unless value.is_a?(Array)
+          opts[:delimiter] ||= /\s*,\s*/
+          value = value.to_s.split(opts[:delimiter])
         end
-      elsif opts[:required]
-        msg = opts[:required].class == TrueClass ? 'is required' : opts[:required]
-        add_error field, msg
+
+        value = value.map { |el| check_filed_value field, el, opts }
+        check_required field, value.first, opts
+      else
+        value = check_filed_value field, value, opts
+          check_required field, value, opts
       end
+
+      # if value is not list of allowed values, raise error
+      if opts[:allowed] && !opts[:values].include?(value)
+        add_error field, 'Value "%s" is not allowed' % value
+      end
+
+      # present empty string values as nil
+      @object[field] = value.to_s.sub(/\s+/, '') == '' ? nil : value
     end
 
     if @errors.keys.length > 0 && block_given?
-      @errors.each { |k,v| yield(k, v) }
+      @errors.each { |k, v| yield(k, v) }
     end
 
     @errors
   end
 
-  def valid? instance
-    errors = validate instance
+  def valid? object
+    errors = validate object
     errors.keys.length == 0
   end
 
   # returns field, db_type, db_opts
   def db_schema
     out = @schema.rules.inject([]) do |total, (field, opts)|
-      type, opts = Typero::Type.load(opts[:type]).new(nil, opts).db_field
+      # get db filed schema
+      type, opts  = Typero::Type.load(opts[:type]).new(nil, opts).db_field
+
+      # add array true to field it ont defined in schema
+      schema_opts = @schema.rules[field]
+      opts[:array] = true if schema_opts[:array]
+
       total << [type, field, opts]
     end
 
@@ -157,15 +104,13 @@ class Typero
   # iterate trough all the ruels via block interface
   # schema.rules do |field, opts|
   # schema.rules(:url) do |field, opts|
-  def rules filter=nil, &block
+  def rules(filter = nil, &block)
     return @schema.rules unless filter
     out = @schema.rules
-    out = out.select { |k,v| v[:type].to_s == filter.to_s || v[:array_type].to_s == filter.to_s } if filter
+    out = out.select { |k, v| v[:type].to_s == filter.to_s || v[:array_type].to_s == filter.to_s } if filter
     return out unless block_given?
 
-    for k, v in out
-      yield k, v
-    end
+    out.each { |k, v| yield k, v }
   end
 
   private
@@ -173,11 +118,11 @@ class Typero
   # adds error to array or prefixes with field name
   def add_error field, msg
     if @errors[field]
-      @errors[field] += ', %s' % msg
+      @errors[field] += ", %s" % msg
     else
-      if msg && msg[0,1].downcase == msg[0,1]
-        field_name = field.to_s.sub(/_id$/,'').humanize
-        msg = '%s %s' % [field_name, msg]
+      if msg && msg[0, 1].downcase == msg[0, 1]
+        field_name = field.to_s.sub(/_id$/, "").humanize
+        msg = "%s %s" % [field_name, msg]
       end
 
       @errors[field] = msg
@@ -185,7 +130,30 @@ class Typero
   end
 
   def safe_type type
-    type.to_s.gsub(/[^\w]/,'').classify
+    type.to_s.gsub(/[^\w]/, "").classify
+  end
+
+  def check_required field, value, opts
+    return if !opts[:required] || value
+    msg = opts[:required].class == TrueClass ? "is required" : opts[:required]
+    add_error field, msg
+  end
+
+  def check_filed_value field, value, opts
+    return unless value
+
+    klass = "Typero::%sType" % safe_type(opts[:type])
+    check = klass.constantize.new value, opts
+    check.value = check.default if check.value.nil?
+
+    unless check.value.nil?
+      begin
+        check.set
+        check.validate
+        check.value
+      rescue TypeError => e
+        add_error field, e.message
+      end
+    end
   end
 end
-

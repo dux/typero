@@ -4,26 +4,20 @@ Checks types on save
 
 ### Example
 
-```
+```ruby
 # we can say
-Typero.new :user do
+UserSchema = Typero.new do
   string  :name, req:true, min: 3
   email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
   float   :speed, min:10, max:200
   integer :age, nil: false
   string  :eyes, default: 'blue'
   integer :maxage, default: lambda { |o| o.age * 5 }
-  email   [:emails] # ensure we have list of emails, field type :email
-
-  db :timestamps
-  db :add_index, :email
-end
-
-class User < Sequel::Model
+  email   Array[:emails] # ensure we have list of emails, field type :email
 end
 
 # and we can generate DB schema
-User.typero.db_schema
+UserSchema.db_schema
 # [:name, :string, {:limit=>255, :null=>false}],
 # [:email, :string, {:limit=>120, :null=>false}],
 # [:speed, :float, {}],
@@ -46,7 +40,7 @@ User.typero.db_schema
 #   "lon_lat": {
 #     "type": "point"
 #   },
-  ```
+```
 
 ### Usage
 
@@ -66,12 +60,6 @@ schema = Typero.new do
   set :email, req: true, type: :email
   set :age, Integer, min: 18, max: 150
 end
-
-# or
-
-schema = Typero.new :class_ref
-schema = Typero.new 'ClassRef'
-schema = Typero.new ClassRef
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}

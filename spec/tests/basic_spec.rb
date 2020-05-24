@@ -4,7 +4,7 @@ require_relative '../fixtures/all'
 describe Typero do
   before(:all) do
     @test  = Test.new
-    @rules = Typero.new(:test)
+    @rules = TestSchema
   end
 
   describe 'Hash access' do
@@ -38,7 +38,7 @@ describe Typero do
     it 'name should allow null name' do
       @test.name = ''
       @rules.valid? @test
-      expect(@test.name).to eq('')
+      expect(@test.name).to eq(nil)
     end
 
     it 'email to be valid' do

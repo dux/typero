@@ -9,5 +9,5 @@ Gem::Specification.new 'typero', version do |s|
   s.homepage    = 'https://github.com/dux/typero'
   s.license     = 'MIT'
 
-  s.add_runtime_dependency 'fast_blank', '~> 1'
+  s.add_runtime_dependency 'fast_blank'
 end

@@ -10,7 +10,7 @@ class Test
   attr_accessor :date
   attr_accessor :datetime
   attr_accessor :point
-  attr_accessor :url
+  attr_accessor :http_loc
 
   def [] key
     send key
@@ -25,27 +25,23 @@ class TestFoo
   attr_accessor :name
 end
 
-Typero.new :test do
-  string   :name
-  float    :speed, min:10, max:200
-  email    :email, req: true
-  email    :email_nil
-  email    [:emails]
-  label    [:tags]
-  string   :eyes, default:'blue'
-  set      :age, Integer, req: true
-  date     :date
-  datetime :datetime
-  date     :point
-  datetime :url
+TestSchema = Typero.new do
+  name?       # String
+  speed?      :float, min:10, max:200
+  email       :email
+  email_nil?  :email
+  emails?     Array[:email]
+  tags        Array[:label]
+  eyes        default: 'blue'
+  set         :age, Integer
+  date        :date
+  datetime    :datetime
+  point       :point
+  http_loc    :url
 
   db :timestamps
 end
 
-Typero.new model: TestFoo do
-  string  :name
-end
-
-Typero.new model: 'TestBar' do
-  string  :name
+TestFooSchema = Typero.new do
+  name # String
 end
