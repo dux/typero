@@ -7,7 +7,7 @@ Instead of haveing DB schema, you can model your data on real types and geneate 
 Errors are localized
 
 ```ruby
-UserSchema = Typero.new do
+UserSchema = Typero do
   name       max: 100
   email      :email
   interests  Set[:label]
@@ -41,7 +41,7 @@ Typero.set(:email, bad_email) { |e| @error = e.message }
 
 ```ruby
 # we can say
-UserSchema = Typero.new do
+UserSchema = Typero do
   # default type is String
   name    min: 3 # default type is String
 
@@ -84,20 +84,39 @@ Can be used in plain, ActiveRecord (adapter missing) or Sequel classes.
 Can be used as schema validator for custom implementations
 
 ```ruby
-schema = Typero.new do
+schema = Typero do
   email   :email, req: true
   integer :age,   min: 18, max: 150 #, min_error: "Minimal allowed age is 18 years."
 end
 
 # or
 
-schema = Typero.new do
+schema = Typero do
   set :email, req: true, type: :email
   set :age, Integer, min: 18, max: 150
 end
 
 schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
+```
+
+You can define schemas in many ways
+
+```ruby
+# as a instance
+schema = Typero.new { user_name }
+
+# as a instance, shorter
+schema = Typero { user_name }
+
+# via cached schema
+Typero(:user) { user_name }
+schema = Typero(:user)
+
+# via class schema
+# Typero(:user) will return UserSchema if one present
+UserSchema = Typero do { user_name }
+schema = Typero(:user)
 ```
 
 ### Built in types

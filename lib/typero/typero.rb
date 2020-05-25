@@ -122,7 +122,7 @@ class Typero
   # iterate trough all the ruels via block interface
   # schema.rules do |field, opts|
   # schema.rules(:url) do |field, opts|
-  def rules(filter = nil, &block)
+  def rules filter = nil, &block
     return @schema.rules unless filter
     out = @schema.rules
     out = out.select { |k, v| v[:type].to_s == filter.to_s || v[:array_type].to_s == filter.to_s } if filter

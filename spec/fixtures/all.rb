@@ -22,11 +22,7 @@ class Test
   end
 end
 
-class TestFoo
-  attr_accessor :name
-end
-
-TestSchema = Typero.new do
+TestSchema = Typero do
   name?       # String
   speed?      :float, min:10, max:200
   email       :email
@@ -44,8 +40,3 @@ TestSchema = Typero.new do
   db :timestamps
 end
 
-TestFooSchema = Typero.new do
-  name # String
-end
-
-# ap TestSchema.validate(email: 'dux')[:email]
