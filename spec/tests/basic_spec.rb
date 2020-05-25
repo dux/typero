@@ -102,5 +102,17 @@ describe Typero do
         end
       end.to raise_error ArgumentError
     end
+
+    it 'fails on too many array elements' do
+       @test.tags = ['foo@bar','baz', 123, 344, 444]
+       resoult = @rules.validate(@test)
+       expect(resoult[:tags]).to eq("Max number of array elements is 3, you have 5")
+    end
+
+    it 'tests custom min value' do
+      @test.sallary = 500
+      resoult = @rules.validate(@test)
+      expect(resoult[:sallary]).to eq('Plata 1000 a ne 500')
+    end
   end
 end

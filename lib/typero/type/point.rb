@@ -25,6 +25,5 @@ class Typero::PointType < Typero::Type
   def db_field
     [:geography, {}]
   end
-
 end
 

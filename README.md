@@ -1,45 +1,58 @@
-## Simple type system
+## Typero - custom types and schema validations
 
-Checks types on save
+Typero is lib for custom types and schema validations.
+
+Instead of haveing DB schema, you can model your data on real types and geneate db_schema, forms, API validators and other based on given types.
+
+```ruby
+UserSchema = Typero.new do
+  name       max: 100
+  email      :email
+  interests  Set[:label]
+  location   :point
+end
+
+UserSchema.rules           # rules hash
+UserSchema.db_schema       # generate DB schema
+UserSchema.validate @user  # validate data
+```
 
 ### Example
 
 ```ruby
 # we can say
 UserSchema = Typero.new do
-  string  :name, req:true, min: 3
-  email   :email, req: true, uniq: "Email is allready registred", protected: "You are not allowed to change the email"
-  float   :speed, min:10, max:200
-  integer :age, nil: false
-  string  :eyes, default: 'blue'
-  integer :maxage, default: lambda { |o| o.age * 5 }
-  email   Array[:emails] # ensure we have list of emails, field type :email
+  # default type is String
+  name    min: 3 # default type is String
+
+  # unique info
+  email   :email, unique: 'Email is allready registred'
+
+  # min and max length can be defined for numbers and strings
+  speed   :float, min:10, max:200
+
+  # use values to define all possible values for a property
+  eyes    default: 'blue', values: %w(brown blue green)
+
+  # array type can be defined for any value
+  # duplicates are false by defult
+  emails  Array[:email], duplicates: true, max_length: 5
+  emails  Set[:email]
+
+  # manualy set field and value for protected fileds
+  set :set, String
+
+  # non required fields are defined by ?
+  name? # same as "name required: false"
+
+  # meta attributes can accept any value
+  name meta: { foo: :bar, baz: 113 } # ok
+  name foo: :bar # ArgumentError
+
+  # you can set custome filed names and error messages
+  # @object.sallary = 500 # erorr - 'Plata min is 1000 (500 given)'
+  sallary  Integer, name: 'Plata', min: 1000, meta: { min_value_error: 'min is %s (%s given)' }
 end
-
-# and we can generate DB schema
-UserSchema.db_schema
-# [:name, :string, {:limit=>255, :null=>false}],
-# [:email, :string, {:limit=>120, :null=>false}],
-# [:speed, :float, {}],
-# [:age, :integer, {}],
-# [:eyes, :string, {:limit=>255}],
-# [:maxage, :integer, {}],
-# [:emails, :string, {:limit=>120, :array=>true}],
-# [:timestamps],
-# [:add_index, :email]
-
-# User.typero.rules
-# or
-# Typero.new(:user).rules
-# Hash
-# {
-#   "name": {
-#     "type": "string",
-#     "required": "City name is required"
-#   },
-#   "lon_lat": {
-#     "type": "point"
-#   },
 ```
 
 ### Usage
@@ -81,7 +94,8 @@ class Typero::LabelType < Typero::Type
   end
 
   def validate
-    raise TypeError, "having unallowed characters" unless @value =~ /^[\w\-]+$/
+    # allow only strnings
+    raise TypeError.neew("having unallowed characters") unless @value =~ /^\w+$/
     true
   end
 end
@@ -127,19 +141,6 @@ errors
 ```
 
 
-#### "array" type - [Typero::ArrayType](https://github.com/dux/typero/blob/master/lib/typero/type/array.rb)
-
-errors
-* value_in_list_error - value in list
-* min_error - min array lenght is %s elements
-* max_error - max array lenght is %s elements
-```
-  attributes do
-    array :field, value_in_list_error: "max array lenght is %s elements", min_error: "max array lenght is %s elements", max_error: "max array lenght is %s elements"
-  end
-```
-
-
 #### "datetime" type - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/datetime.rb)
 
 
@@ -166,11 +167,11 @@ errors
 #### "email" type - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/email.rb)
 
 errors
-* missing_monkey_error - is missing @
 * not_8_chars_error - is not having at least 8 characters
+* missing_monkey_error - is missing @
 ```
   attributes do
-    email :field, missing_monkey_error: "is not having at least 8 characters", not_8_chars_error: "is not having at least 8 characters"
+    email :field, not_8_chars_error: "is missing @", missing_monkey_error: "is missing @"
   end
 ```
 

@@ -55,7 +55,16 @@ class Typero
           value = value.to_s.split(opts[:delimiter])
         end
 
-        value = value.map { |el| check_filed_value field, el, opts }
+        value = value
+          .map { |el| check_filed_value field, el, opts }
+          .map { |el| el.to_s == '' ? nil : el }
+          .compact
+
+        value = Set.new(value).to_a unless opts[:duplicates]
+
+        opts[:max_count] ||= 100
+        add_error(field, 'Max number of array elements is %d, you have %d' % [opts[:max_count], value.length], opts) if value.length > opts[:max_count]
+
         check_required field, value.first, opts
       else
         value = check_filed_value field, value, opts
@@ -64,7 +73,7 @@ class Typero
 
       # if value is not list of allowed values, raise error
       if opts[:allowed] && !opts[:values].include?(value)
-        add_error field, 'Value "%s" is not allowed' % value
+        add_error field, 'Value "%s" is not allowed' % value, opts
       end
 
       # present empty string values as nil
@@ -116,12 +125,12 @@ class Typero
   private
 
   # adds error to array or prefixes with field name
-  def add_error field, msg
+  def add_error field, msg, opts
     if @errors[field]
       @errors[field] += ", %s" % msg
     else
       if msg && msg[0, 1].downcase == msg[0, 1]
-        field_name = field.to_s.sub(/_id$/, "").humanize
+        field_name = opts[:name] || field.to_s.sub(/_id$/, "").humanize
         msg = "%s %s" % [field_name, msg]
       end
 
@@ -136,7 +145,7 @@ class Typero
   def check_required field, value, opts
     return if !opts[:required] || value
     msg = opts[:required].class == TrueClass ? "is required" : opts[:required]
-    add_error field, msg
+    add_error field, msg, opts
   end
 
   def check_filed_value field, value, opts
@@ -152,7 +161,7 @@ class Typero
         check.validate
         check.value
       rescue TypeError => e
-        add_error field, e.message
+        add_error field, e.message, opts
       end
     end
   end

@@ -11,6 +11,7 @@ class Test
   attr_accessor :datetime
   attr_accessor :point
   attr_accessor :http_loc
+  attr_accessor :sallary
 
   def [] key
     send key
@@ -31,13 +32,14 @@ TestSchema = Typero.new do
   email       :email
   email_nil?  :email
   emails?     Array[:email]
-  tags        Array[:label]
+  tags        Array[:label], max_count: 3
   eyes        default: 'blue'
   set         :age, Integer
   date        :date
   datetime    :datetime
   point       :point
   http_loc    :url
+  sallary     Integer, name: 'Plata', min: 1000, meta: { min_value_error: '%s a ne %s' }
 
   db :timestamps
 end

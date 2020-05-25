@@ -31,7 +31,7 @@ class Typero
 
     # get error from option or the default one
     def error_for name
-      @opts[name] || send(name)
+      @opts.dig(:meta, name) || send(name)
     end
 
     def default

@@ -2,7 +2,7 @@
 
 class Typero
   class Params
-    ALLOWED = %i(min max default allowed delimiter max_count req required type array meta desc description duplicates unique)
+    ALLOWED = %i(name min max default allowed delimiter max_count req required type array meta desc description duplicates unique)
 
     attr_reader :rules, :db_rules
 
@@ -44,9 +44,8 @@ class Typero
 
       # no duplicates array
       if opts[:type].is_a?(Set)
-        opts[:type]       = opts[:type].to_a.first
-        opts[:array]      = true
-        opts[:duplicates] = false
+        opts[:type]  = opts[:type].to_a.first
+        opts[:array] = true
       end
 
       opts[:type] ||= 'string'
@@ -56,7 +55,7 @@ class Typero
 
       # chek alloed params, all optional should go in meta
       result = opts.keys - ALLOWED
-      raise 'Unallowed Type params found: %s, allowed: %s' % [result.join(', '), ALLOWED] if result.length > 0
+      raise ArgumentError.new('Unallowed Type params found: %s, allowed: %s' % [result.join(', '), ALLOWED]) if result.length > 0
 
       field = field.to_sym
 
