@@ -117,6 +117,8 @@ schema = Typero(:user)
 # Typero(:user) will return UserSchema if one present
 UserSchema = Typero do { user_name }
 schema = Typero(:user)
+UserSchema.validate(@user)
+schema.validate(@user)
 ```
 
 ### Built in types

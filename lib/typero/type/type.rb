@@ -1,6 +1,6 @@
 # Master class
 
-class Typero
+module Typero
   class Type
     ERRORS = {
       en: {

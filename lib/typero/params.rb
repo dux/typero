@@ -1,6 +1,6 @@
 # Base class for schema validation
 
-class Typero
+module Typero
   class Params
     ALLOWED = %i(name min max default allowed delimiter max_count req required type array meta desc description duplicates unique)
 

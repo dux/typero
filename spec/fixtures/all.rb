@@ -22,7 +22,7 @@ class Test
   end
 end
 
-TestSchema = Typero do
+TestSchema = Typero.schema do
   name?       # String
   speed?      :float, min:10, max:200
   email       :email

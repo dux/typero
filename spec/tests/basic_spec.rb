@@ -97,7 +97,7 @@ describe Typero do
 
     it 'raises error when type not found' do
       expect do
-        Typero.new do
+        Typero.schema do
           kinky  :name
         end
       end.to raise_error ArgumentError
