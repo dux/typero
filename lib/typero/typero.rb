@@ -22,9 +22,18 @@ class Typero
   class << self
     # check and coerce value
     # Typero.set(:label, 'Foo bar') -> "foo-bar"
-    def set(type, value, opts = {})
+    def set type, value, opts = {}, &block
       check = Typero::Type.load(type).new value, opts
+      check.set
+      check.validate
       check.value
+    rescue TypeError => error
+      if block
+        block.call error
+        false
+      else
+        raise error
+      end
     end
   end
 

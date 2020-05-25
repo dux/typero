@@ -47,3 +47,5 @@ end
 TestFooSchema = Typero.new do
   name # String
 end
+
+ap TestFooSchema.rules

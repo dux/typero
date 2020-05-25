@@ -17,7 +17,25 @@ UserSchema.db_schema       # generate DB schema
 UserSchema.validate @user  # validate data
 ```
 
-### Example
+You can test single value
+
+```ruby
+good_email = 'DUX@Net.hr'
+
+# will convert email to 'dux@net.hr' (lowercase)
+# but it will not raise error
+Typero.set :email, good_email
+
+bad_email = 'duxnet.hr'
+
+# raises TypeError
+Typero.set :email, bad_email
+
+# will capture error if block provided
+Typero.set(:email, bad_email) { |e| @error = e.message }
+```
+
+### Schema example
 
 ```ruby
 # we can say
