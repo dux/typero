@@ -48,4 +48,4 @@ TestFooSchema = Typero.new do
   name # String
 end
 
-ap TestFooSchema.rules
+# ap TestSchema.validate(email: 'dux')[:email]

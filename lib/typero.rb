@@ -1,10 +1,10 @@
 # base libs
 require_relative 'typero/typero'
 require_relative 'typero/params'
-require_relative 'typero/type'
+require_relative 'typero/type/type'
 
 # checker types
-Dir['%s/typero/type/*.rb' % __dir__].each do |file|
+Dir['%s/typero/type/types/*.rb' % __dir__].each do |file|
   require file
 end
 

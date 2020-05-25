@@ -1,4 +1,23 @@
 class Typero::OibType < Typero::Type
+  error :en, :not_an_oib_error, 'not in an OIB format'
+
+  def set
+    @value = check?(@value) ? @value.to_i : nil
+  end
+
+  def validate
+    error_for(:not_an_oib_error) unless check?(@value)
+  end
+
+  def db_field
+    opts = {}
+    opts[:null]  = false if @opts[:required]
+    opts[:limit] = 11
+    [:string, opts]
+  end
+
+  private
+
   # http://domagoj.eu/oib/
   def check? oib
     oib = oib.to_s
@@ -19,23 +38,5 @@ class Typero::OibType < Typero::Type
     return control_sum == oib.at(10).to_i
   end
 
-  def set
-    @value = check?(@value) ? @value.to_i : nil
-  end
-
-  def validate
-    raise TypeError.new(error_for(:not_an_oib_error)) unless check?(@value)
-  end
-
-  def not_an_oib_error
-    'not in an OIB format'
-  end
-
-  def db_field
-    opts = {}
-    opts[:null]  = false if @opts[:required]
-    opts[:limit] = 11
-    [:string, opts]
-  end
 end
 

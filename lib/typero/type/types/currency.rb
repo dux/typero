@@ -1,3 +1,5 @@
+# you should not use this filed for currency calculations
+
 require_relative './float'
 
 class Typero::CurrencyType < Typero::FloatType

@@ -4,6 +4,8 @@ Typero is lib for custom types and schema validations.
 
 Instead of haveing DB schema, you can model your data on real types and geneate db_schema, forms, API validators and other based on given types.
 
+Errors are localized
+
 ```ruby
 UserSchema = Typero.new do
   name       max: 100
@@ -69,6 +71,8 @@ UserSchema = Typero.new do
 
   # you can set custome filed names and error messages
   # @object.sallary = 500 # erorr - 'Plata min is 1000 (500 given)'
+  sallary  Integer, name: 'Plata', min: 1000, meta: { en: { min_value_error: 'min is %s (%s given)'} }
+  # or without locale prefix
   sallary  Integer, name: 'Plata', min: 1000, meta: { min_value_error: 'min is %s (%s given)' }
 end
 ```
@@ -96,11 +100,38 @@ schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
 ```
 
+### Built in types
+
+* **image** - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/types/image.rb)
+  * `strict: Force image to have known extension (jpg, jpeg, gif, png, svg, webp)`
+* **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date.rb)
+* **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string.rb)
+  * `min: Minimun string length`
+  * `max: Maximun string length`
+* **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib.rb)
+* **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime.rb)
+* **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency.rb)
+* **text** - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/types/text.rb)
+  * `min: Minimun string length`
+  * `max: Maximun string length`
+* **label** - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/label.rb)
+* **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email.rb)
+* **integer** - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/types/integer.rb)
+  * `min: Minimum value`
+  * `max: Maximun value`
+* **hash** - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/types/hash.rb)
+* **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url.rb)
+* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point.rb)
+* **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean.rb)
+* **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float.rb)
+  * `min: Minimum value`
+  * `max: Maximun value`
+
 ### Create custom type
 
 We will create custom type named :label
 
-```
+```ruby
 class Typero::LabelType < Typero::Type
   # default value for blank? == true values
   def default
@@ -119,131 +150,31 @@ class Typero::LabelType < Typero::Type
 end
 ```
 
-### Built in types and errors
+### Errors
 
-#### "image" type - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/image.rb)
+If you want to overload errors or add new languages.
 
-errors
-* not_starting_error - URL is not starting with http
-```
-  attributes do
-    image :field, not_starting_error: "URL is not starting with http"
-  end
+```ruby
+Typero::Type.error :en, :min_length_error, 'minimun lenght is %s, you have defined %s'
 ```
 
+#### Built in errors
 
-#### "date" type - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/date.rb)
-
-
-
-#### "string" type - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/string.rb)
-
-errors
-* min_length_error - min lenght is %s, you have %s
-* max_length_error - max lenght is %s, you have %s
+```ruby
+ERRORS = {
+  en: {
+    min_length_error: 'min lenght is %s, you have %s',
+    max_length_error: 'max lenght is %s, you have %s',
+    min_value_error: 'min is %s, got %s',
+    max_value_error: 'max is %s, got %s',
+    unallowed_characters_error: 'is having unallowed characters',
+    image_not_starting_error: 'URL is not starting with http',
+    image_not_image_format: 'URL is not ending with jpg, jpeg, gif, png, svg, webp',
+    not_an_oib_error: 'not in an OIB format',
+    not_8_chars_error: 'is not having at least 8 characters',
+    missing_monkey_error: 'is missing @',
+    not_hash_type_error: 'value is not hash type',
+    url_not_starting_error: 'URL is not starting with http',
+  }
+}
 ```
-  attributes do
-    string :field, min_length_error: "max lenght is %s, you have %s", max_length_error: "max lenght is %s, you have %s"
-  end
-```
-
-
-#### "oib" type - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/oib.rb)
-
-errors
-* not_an_oib_error - not in an OIB format
-```
-  attributes do
-    oib :field, not_an_oib_error: "not in an OIB format"
-  end
-```
-
-
-#### "datetime" type - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/datetime.rb)
-
-
-
-#### "currency" type - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/currency.rb)
-
-
-
-#### "text" type - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/text.rb)
-
-
-
-#### "label" type - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/label.rb)
-
-errors
-* unallowed_characters_error - label is having unallowed characters
-```
-  attributes do
-    label :field, unallowed_characters_error: "label is having unallowed characters"
-  end
-```
-
-
-#### "email" type - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/email.rb)
-
-errors
-* not_8_chars_error - is not having at least 8 characters
-* missing_monkey_error - is missing @
-```
-  attributes do
-    email :field, not_8_chars_error: "is missing @", missing_monkey_error: "is missing @"
-  end
-```
-
-
-#### "integer" type - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/integer.rb)
-
-errors
-* min_value_error - min is %s, got %s
-* max_value_error - max is %s, got %s
-```
-  attributes do
-    integer :field, min_value_error: "max is %s, got %s", max_value_error: "max is %s, got %s"
-  end
-```
-
-
-#### "hash" type - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/hash.rb)
-
-errors
-* not_hash_type_error - value is not hash type
-```
-  attributes do
-    hash :field, not_hash_type_error: "value is not hash type"
-  end
-```
-
-
-#### "url" type - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/url.rb)
-
-errors
-* not_starting_error - URL is not starting with http
-```
-  attributes do
-    url :field, not_starting_error: "URL is not starting with http"
-  end
-```
-
-
-#### "point" type - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/point.rb)
-
-
-
-#### "boolean" type - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/boolean.rb)
-
-
-
-#### "float" type - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/float.rb)
-
-errors
-* min_length_error - min lenght is %s
-* max_length_error - max lenght is %s
-```
-  attributes do
-    float :field, min_length_error: "max lenght is %s", max_length_error: "max lenght is %s"
-  end
-```
-

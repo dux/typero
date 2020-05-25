@@ -4,6 +4,8 @@ Typero is lib for custom types and schema validations.
 
 Instead of haveing DB schema, you can model your data on real types and geneate db_schema, forms, API validators and other based on given types.
 
+Errors are localized
+
 ```ruby
 UserSchema = Typero.new do
   name       max: 100
@@ -69,6 +71,8 @@ UserSchema = Typero.new do
 
   # you can set custome filed names and error messages
   # @object.sallary = 500 # erorr - 'Plata min is 1000 (500 given)'
+  sallary  Integer, name: 'Plata', min: 1000, meta: { en: { min_value_error: 'min is %s (%s given)'} }
+  # or without locale prefix
   sallary  Integer, name: 'Plata', min: 1000, meta: { min_value_error: 'min is %s (%s given)' }
 end
 ```
@@ -96,11 +100,15 @@ schema.validate({ email:'dux@net.hr', age:'40' }) # {}
 schema.validate({ email:'duxnet.hr', age:'16' })  # {:email=>"Email is missing @", :age=>"Age min is 18, got 16"}
 ```
 
+### Built in types
+
+{{types}}
+
 ### Create custom type
 
 We will create custom type named :label
 
-```
+```ruby
 class Typero::LabelType < Typero::Type
   # default value for blank? == true values
   def default
@@ -119,6 +127,16 @@ class Typero::LabelType < Typero::Type
 end
 ```
 
-### Built in types and errors
+### Errors
 
-{{types}}
+If you want to overload errors or add new languages.
+
+```ruby
+Typero::Type.error :en, :min_length_error, 'minimun lenght is %s, you have defined %s'
+```
+
+#### Built in errors
+
+```ruby
+{{errors}}
+```

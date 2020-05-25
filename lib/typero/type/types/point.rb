@@ -18,7 +18,7 @@ class Typero::PointType < Typero::Type
 
   def validate
     if @value && @value.include?(',') && !@value =~ /^SRID=4326;POINT\(/
-      raise TypeError, error_for(:unallowed_characters_error)
+      error_for(:unallowed_characters_error)
     end
   end
 
