@@ -25,9 +25,7 @@ module Typero
   # Typero.set(:label, 'Foo bar') -> "foo-bar"
   def set type, value, opts = {}, &block
     check = Typero::Type.load(type).new value, opts
-    check.set
-    check.validate
-    check.value
+    check.get
   rescue TypeError => error
     if block
       block.call error
@@ -47,16 +45,46 @@ module Typero
         Typero::Schema::SCHEMAS[name] = schema if name
       end
     else
-      raise ArgumentErorr.new('Schema nema not given') unless name
+      raise ArgumentErorr.new('Schema name not given') unless name
 
       schema   = Typero::Schema::SCHEMAS[name]
-      schema ||= proc do
-        # 'User\ -> if UserSchema is defined, return that
-        klass = name + 'Schema'
-        defined?(klass) && klass.constantize
-      end.call
+      schema ||= class_finder name, :schema
+      schema || raise('Typero schema "%s" not defined' % name)
+    end
+  end
 
-      schema || raise(ArgumentErorr.new('Typero schema "%s" not defined' % name))
+  def export model, opts={}, &block
+    if block_given?
+      Exporter::EXPORTERS[model.to_s.classify] = block
+    else
+      Exporter.new(model, opts).render
+    end
+  end
+
+  def defined? name
+    Typero::Type.load name
+    true
+  rescue ArgumentError
+    false
+  end
+
+  private
+
+  # class_finder :user, :exporter, :representer
+  # find first UserExporter, User::Exporter, User::Representer, UserRepresenter
+  def class_finder *args
+    name = args.shift.to_s.classify
+
+    for el in args
+      for separator in ['_','/']
+        klass = [name, el].join(separator).classify
+
+        begin
+          return klass.constantize
+        rescue NameError => e
+          nil
+        end
+      end
     end
   end
 end

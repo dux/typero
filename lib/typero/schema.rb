@@ -37,10 +37,10 @@ module Typero
           opts[:max_count] ||= 100
           add_error(field, 'Max number of array elements is %d, you have %d' % [opts[:max_count], value.length], opts) if value.length > opts[:max_count]
 
-          check_required field, value.first, opts
+          add_required_error field, value.first, opts
         else
           value = check_filed_value field, value, opts
-            check_required field, value, opts
+          add_required_error field, value, opts
         end
 
         # if value is not list of allowed values, raise error
@@ -93,6 +93,7 @@ module Typero
 
       out.each { |k, v| yield k, v }
     end
+    alias :to_h :rules
 
     private
 
@@ -102,7 +103,7 @@ module Typero
         @errors[field] += ", %s" % msg
       else
         if msg && msg[0, 1].downcase == msg[0, 1]
-          field_name = opts[:name] || field.to_s.sub(/_id$/, "").humanize
+          field_name = opts[:name] || field.to_s.sub(/_id$/, "").capitalize
           msg = "%s %s" % [field_name, msg]
         end
 
@@ -114,28 +115,18 @@ module Typero
       type.to_s.gsub(/[^\w]/, "").classify
     end
 
-    def check_required field, value, opts
-      return if !opts[:required] || value
+    def add_required_error field, value, opts
+      return unless opts[:required] && value.nil?
       msg = opts[:required].class == TrueClass ? "is required" : opts[:required]
       add_error field, msg, opts
     end
 
     def check_filed_value field, value, opts
-      return unless value
-
       klass = "Typero::%sType" % safe_type(opts[:type])
       check = klass.constantize.new value, opts
-      check.value = check.default if check.value.nil?
-
-      unless check.value.nil?
-        begin
-          check.set
-          check.validate
-          check.value
-        rescue TypeError => e
-          add_error field, e.message, opts
-        end
-      end
+      check.get
+    rescue TypeError => e
+      add_error field, e.message, opts
     end
   end
 end

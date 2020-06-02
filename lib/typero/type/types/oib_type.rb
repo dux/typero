@@ -2,18 +2,15 @@ class Typero::OibType < Typero::Type
   error :en, :not_an_oib_error, 'not in an OIB format'
 
   def set
-    @value = check?(@value) ? @value.to_i : nil
+    value do |data|
+      check?(data) ? data.to_i : error_for(:not_an_oib_error)
+    end
   end
 
-  def validate
-    error_for(:not_an_oib_error) unless check?(@value)
-  end
-
-  def db_field
-    opts = {}
-    opts[:null]  = false if @opts[:required]
-    opts[:limit] = 11
-    [:string, opts]
+  def db_schema
+    [:string, {
+      limit: 11
+    }]
   end
 
   private

@@ -7,22 +7,16 @@ class Typero::ImageType < Typero::Type
   opts :strict, 'Force image to have known extension (%s)' % FORMATS.join(', ')
 
   def set
-    @value = 'https://%s' % @value unless @value.include?('://')
-  end
-
-  def validate
-    error_for(:image_not_starting_error) unless @value =~ /^https?:\/\/./
+    error_for(:image_not_starting_error) unless value =~ /^https?:\/\/./
 
     if opts[:strict]
-      ext = @value.split('.').last.downcase
+      ext = value.split('.').last.downcase
       error_for(:image_not_image_format) unless FORMATS.include?(ext)
     end
   end
 
-  def db_field
-    opts = {}
-    opts[:null] = false if @opts[:required]
-    [:string, opts]
+  def db_schema
+    [:string]
   end
 end
 

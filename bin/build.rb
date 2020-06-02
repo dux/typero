@@ -4,12 +4,14 @@ require 'sequel'
 Sequel.extension :inflector
 
 list = Dir["lib/typero/type/types/*.rb"].map do |el|
-  el.split('/').last.split('.').first
+  el.split('/').last.split('_type.').first
 end
 
 types = []
 
-for el in list
+for el in list.sort
+  require_relative '../lib/typero/type/types/%s_type' % el
+
   klass = Typero::Type.load el
   types.push '* **%s** - [%s](https://github.com/dux/typero/blob/master/lib/typero/type/types/%s.rb)' % [el, klass, el]
 

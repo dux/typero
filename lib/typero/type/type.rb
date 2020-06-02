@@ -9,14 +9,16 @@ module Typero
         max_length_error: 'max lenght is %s, you have %s',
         min_value_error: 'min is %s, got %s',
         max_value_error: 'max is %s, got %s',
-        unallowed_characters_error: 'is having unallowed characters'
+        unallowed_characters_error: 'is having unallowed characters',
+        not_in_range: 'Value in not in allowed range (%s)'
       }
     }
 
-    OPTS = {}
+    # default shared allowed opts keys
+    OPTS_KEYS = [:type, :required, :array, :max_count, :default, :name, :meta, :model]
+    OPTS      = {}
 
-    attr_accessor :opts
-    attr_accessor :value
+    attr_reader :opts
 
     class << self
       def load name
@@ -36,6 +38,8 @@ module Typero
       end
 
       def opts key, desc
+        OPTS_KEYS.push key unless OPTS_KEYS.include?(key)
+
         OPTS[self] ||= {}
         OPTS[self][key] = desc
       end
@@ -43,18 +47,42 @@ module Typero
 
     ###
 
-    def initialize value, opts={}
+    def initialize value, opts={}, &block
+      value = value.sub(/^\s+/, '').sub(/\s+$/, '') if value.is_a?(String)
+
       @value = value
       @opts  = opts
+      @block = block
     end
 
-    # default validation for any type
-    def validate
-      true
+    def value &block
+      if block_given?
+        @value = block.call @value
+      else
+        @value
+      end
+    end
+
+    def get
+      if value.nil?
+        opts[:default].nil? ? default : opts[:default]
+      else
+        set
+        error_for(:not_in_range, opts[:values].join(', ')) if opts[:values] && !opts[:values].include?(@value)
+        value
+      end
     end
 
     def default
       nil
+    end
+
+    def db_field
+      out = db_schema
+      out[1] ||= {}
+      out[1][:default] ||= opts[:default] unless opts[:default].nil?
+      out[1][:null]      = false if !opts[:array] && opts[:required]
+      out
     end
 
     private

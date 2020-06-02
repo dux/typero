@@ -2,8 +2,6 @@
 
 module Typero
   class Params
-    ALLOWED = %i(name min max default allowed delimiter max_count req required type array meta desc description duplicates unique)
-
     attr_reader :rules, :db_rules
 
     def initialize &block
@@ -25,8 +23,7 @@ module Typero
         opts[:type] ||= args[0]
       end
 
-      opts[:type]   ||= :string
-      opts[:required] = true unless opts[:required].is_a?(FalseClass) || opts[:req].is_a?(FalseClass)
+      opts[:type] = :string if opts[:type].nil?
 
       field = field.to_s
 
@@ -35,6 +32,8 @@ module Typero
         field = field.sub('?', '')
         opts[:required] = false
       end
+
+      opts[:required] = true if opts[:required].nil?
 
       # array that allows duplicates
       if opts[:type].is_a?(Array)
@@ -48,20 +47,36 @@ module Typero
         opts[:array] = true
       end
 
+      # Boolean
+      if opts[:type].is_a?(TrueClass)
+        opts[:required] = false
+        opts[:default]  = true
+        opts[:type]     = :boolean
+      elsif opts[:type].is_a?(FalseClass)
+        opts[:required] = false
+        opts[:default]  = false
+        opts[:type]     = :boolean
+      end
+
+      opts[:model] = opts.delete(:schema) if opts[:schema]
+      opts[:type]  = :model if opts[:model]
+
       opts[:type] ||= 'string'
-      opts[:type]   = opts[:type].to_s.downcase
+      opts[:type]   = opts[:type].to_s.downcase.to_sym
 
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
 
       # chek alloed params, all optional should go in meta
-      result = opts.keys - ALLOWED
-      raise ArgumentError.new('Unallowed Type params found: %s, allowed: %s' % [result.join(', '), ALLOWED]) if result.length > 0
+      result = opts.keys - Typero::Type::OPTS_KEYS
+      raise ArgumentError.new('Unallowed Type params found: "%s", allowed: %s' % [result.join(' and '), Typero::Type::OPTS_KEYS.sort]) if result.length > 0
 
       field = field.to_sym
 
       db :add_index, field if opts.delete(:index)
 
-      klass = Typero::Type.load opts[:type]
+      # trigger error if type not found
+      Typero::Type.load opts[:type]
+
       @rules[field] = opts
     end
 

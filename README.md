@@ -123,7 +123,33 @@ schema.validate(@user)
 
 ### Built in types
 
-{{types}}
+* **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean.rb)
+* **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency.rb)
+* **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date.rb)
+* **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime.rb)
+* **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email.rb)
+* **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float.rb)
+  * `min: Minimum value`
+  * `max: Maximun value`
+  * `round: Round to (decimal spaces)`
+* **hash** - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/types/hash.rb)
+* **image** - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/types/image.rb)
+  * `strict: Force image to have known extension (jpg, jpeg, gif, png, svg, webp)`
+* **integer** - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/types/integer.rb)
+  * `min: Minimum value`
+  * `max: Maximun value`
+* **label** - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/label.rb)
+* **model** - [Typero::ModelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/model.rb)
+* **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib.rb)
+* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point.rb)
+* **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string.rb)
+  * `min: Minimun string length`
+  * `max: Maximun string length`
+  * `downcase: is the string in downcase?`
+* **text** - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/types/text.rb)
+  * `min: Minimun string length`
+  * `max: Maximun string length`
+* **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url.rb)
 
 ### Create custom type
 
@@ -161,5 +187,24 @@ Typero::Type.error :en, :min_length_error, 'minimun lenght is %s, you have defin
 #### Built in errors
 
 ```ruby
-{{errors}}
+ERRORS = {
+  en: {
+    min_length_error: 'min lenght is %s, you have %s',
+    max_length_error: 'max lenght is %s, you have %s',
+    min_value_error: 'min is %s, got %s',
+    max_value_error: 'max is %s, got %s',
+    unallowed_characters_error: 'is having unallowed characters',
+    not_in_range: 'Value in not in allowed range (%s)',
+    min_date: 'Minimal allowed date is %s',
+    max_date: 'Maximal allowed date is %s',
+    unsupported_boolean: 'Unsupported boolean param value: %s',
+    url_not_starting_error: 'URL is not starting with http or https',
+    not_hash_type_error: 'value is not hash type',
+    image_not_starting_error: 'URL is not starting with http',
+    image_not_image_format: 'URL is not ending with jpg, jpeg, gif, png, svg, webp',
+    not_8_chars_error: 'is not having at least 8 characters',
+    missing_monkey_error: 'is missing @',
+    not_an_oib_error: 'not in an OIB format',
+  }
+}
 ```
