@@ -121,6 +121,35 @@ UserSchema.validate(@user)
 schema.validate(@user)
 ```
 
+### Nested schemas
+
+```ruby
+# create model
+Typero.schema User do
+  name
+  email  :email
+  avatar :url
+end
+
+# reference by model
+Typero.schema :api1 do
+  # root params
+  bar
+  foo  Integer
+
+  # hash has to match the model
+  user  model: User
+
+  # or dynamic declaration
+  user do
+    name
+    email :email
+    avatar :url
+  end
+end
+
+```
+
 ### Built in types
 
 {{types}}

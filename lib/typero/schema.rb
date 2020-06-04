@@ -126,7 +126,13 @@ module Typero
       check = klass.constantize.new value, opts
       check.get
     rescue TypeError => e
-      add_error field, e.message, opts
+      if e.message[0] == '{'
+        for key, msg in JSON.parse(e.message)
+          add_error [field, key].join('.'), msg, opts
+        end
+      else
+        add_error field, e.message, opts
+      end
     end
   end
 end

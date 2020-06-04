@@ -13,7 +13,7 @@ module Typero
     private
 
     # used in dsl to define schema field options
-    def set field, *args
+    def set field, *args, &block
       raise "Field name not given (Typero)" unless field
 
       if args.first.is_a?(Hash)
@@ -33,7 +33,11 @@ module Typero
         opts[:required] = false
       end
 
-      opts[:required] = true if opts[:required].nil?
+      if value = opts.delete(:req)
+        opts[:required] = value
+      else
+        opts[:required] = true if opts[:required].nil?
+      end
 
       # array that allows duplicates
       if opts[:type].is_a?(Array)
@@ -60,6 +64,11 @@ module Typero
 
       opts[:model] = opts.delete(:schema) if opts[:schema]
       opts[:type]  = :model if opts[:model]
+
+      if block_given?
+        opts[:type]  = :model
+        opts[:model] = Typero.schema &block
+      end
 
       opts[:type] ||= 'string'
       opts[:type]   = opts[:type].to_s.downcase.to_sym
@@ -93,7 +102,7 @@ module Typero
     # set :emails, Array[:email]
     # email Array[:emails]
     def method_missing field, *args, &block
-      set field, *args
+      set field, *args, &block
     end
   end
 end

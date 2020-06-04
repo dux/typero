@@ -45,7 +45,7 @@ module Typero
         Typero::Schema::SCHEMAS[name] = schema if name
       end
     else
-      raise ArgumentErorr.new('Schema name not given') unless name
+      raise ArgumentError.new('Schema name not given') unless name
 
       schema   = Typero::Schema::SCHEMAS[name]
       schema ||= class_finder name, :schema
