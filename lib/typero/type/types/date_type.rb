@@ -3,7 +3,10 @@ class Typero::DateType < Typero::Type
   error :en, :max_date, 'Maximal allowed date is %s'
 
   def set
-    value { |data| DateTime.parse(data) }
+    unless [Date].include?(value.class)
+      value { |data| DateTime.parse(data) }
+    end
+
     value { |data| DateTime.new(data.year, data.month, data.day) }
 
     check_date_min_max

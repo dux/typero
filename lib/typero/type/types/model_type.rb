@@ -5,7 +5,9 @@ class Typero::ModelType < Typero::Type
     errors = {}
 
     schema = opts[:model].is_a?(Typero::Schema) ? opts[:model] : Typero.schema(opts[:model])
-    schema.validate(value) do |field, error|
+
+    # by default models in schems are strict true (remove undefined keys)
+    schema.validate value, strict: true do |field, error|
       errors[field] = error
     end
 

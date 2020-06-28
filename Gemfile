@@ -1,3 +1,3 @@
 gemspec
 
-gem 'awesome_print'
+gem 'amazing_print'

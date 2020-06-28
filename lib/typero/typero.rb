@@ -49,7 +49,7 @@ module Typero
 
       schema   = Typero::Schema::SCHEMAS[name]
       schema ||= class_finder name, :schema
-      schema || raise('Typero schema "%s" not defined' % name)
+      schema || nil
     end
   end
 
@@ -78,13 +78,10 @@ module Typero
     for el in args
       for separator in ['_','/']
         klass = [name, el].join(separator).classify
-
-        begin
-          return klass.constantize
-        rescue NameError => e
-          nil
-        end
+        return klass.constantize if const_defined? klass
       end
     end
+
+    nil
   end
 end

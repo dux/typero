@@ -2,7 +2,7 @@ class Typero::HashType < Typero::Type
   error :en, :not_hash_type_error, 'value is not hash type'
 
   def set
-    error_for(:not_hash_type_error) unless value.is_a?(Hash)
+    error_for(:not_hash_type_error) unless value.respond_to?(:keys) &&value.respond_to?(:values)
 
     if opts[:allow]
       for key in value.keys

@@ -10,11 +10,22 @@ module Typero
 
     # validates any instance object with hash variable interface
     # it also coarces values
-    def validate object
-      @object = object
-      @errors = {}
+    def validate object, options=nil
+      @options = options || {}
+      @object  = object
+      @errors  = {}
+
+      # remove undefined keys if Hash provided
+      if @options[:strict] && object.is_a?(Hash)
+        undefined = object.keys.map(&:to_s) - @schema.rules.keys.map(&:to_s)
+        object.delete_if { |k, _| undefined.include?(k.to_s) }
+      end
 
       @schema.rules.each do |field, opts|
+        for k in opts.keys
+          opts[k] = @object.instance_exec(&opts[k]) if opts[k].is_a?(Proc)
+        end
+
         # set value to default if value is blank and default given
         @object[field] = opts[:default] if opts[:default] && @object[field].blank?
 
@@ -22,30 +33,33 @@ module Typero
         value = @object[field]
 
         if opts[:array]
-          unless value.is_a?(Array)
-            opts[:delimiter] ||= /\s*,\s*/
+          unless value.respond_to?(:each)
+            opts[:delimiter] ||= /\s*[,\n]\s*/
             value = value.to_s.split(opts[:delimiter])
           end
 
           value = value
-            .map { |el| check_filed_value field, el, opts }
-            .map { |el| el.to_s == '' ? nil : el }
+            .flatten
+            .map { |el| el.to_s == '' ? nil : check_filed_value(field, el, opts) }
             .compact
 
           value = Set.new(value).to_a unless opts[:duplicates]
 
           opts[:max_count] ||= 100
-          add_error(field, 'Max number of array elements is %d, you have %d' % [opts[:max_count], value.length], opts) if value.length > opts[:max_count]
+          add_error(field, 'Max number of array elements is %d, you have %d' % [opts[:max_count], value.length], opts) if value && value.length > opts[:max_count]
+          add_error(field, 'Min number of array elements is %d, you have %d' % [opts[:min_count], value.length], opts) if value && opts[:min_count] && value.length < opts[:min_count]
 
           add_required_error field, value.first, opts
         else
+          # if value is not list of allowed values, raise error
+          allowed = opts[:allow] || opts[:allowed] || opts[:values]
+          if value && allowed && !allowed.include?(value)
+            ap [field, value, opts[:allowed]]
+            add_error field, 'Value "%s" is not allowed' % value, opts
+          end
+
           value = check_filed_value field, value, opts
           add_required_error field, value, opts
-        end
-
-        # if value is not list of allowed values, raise error
-        if opts[:allowed] && !opts[:values].include?(value)
-          add_error field, 'Value "%s" is not allowed' % value, opts
         end
 
         # present empty string values as nil

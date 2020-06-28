@@ -2,12 +2,16 @@
 
 module Typero
   class Params
-    attr_reader :rules, :db_rules
+    attr_reader :db_rules
 
     def initialize &block
       @db_rules = []
       @rules    = {}
       instance_exec &block
+    end
+
+    def rules
+      @rules.dup
     end
 
     private

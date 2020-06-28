@@ -55,8 +55,8 @@ describe Typero::Exporter do
   end
 
   it 'exports complex object' do
-    user     = User.new 'dux', 'dux@net.hr'
-    response = Typero.export user, user: user
+    some_user = User.new 'dux', 'dux@net.hr'
+    response  = Typero.export some_user, user: some_user
     expect(response[:is_admin]).to eq(true)
 
     user     = User.new 'dino', 'dux@net.hr'

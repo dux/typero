@@ -1,4 +1,4 @@
-require 'awesome_print'
+require 'amazing_print'
 require 'active_support/all'
 
 require_relative '../lib/typero'
@@ -11,6 +11,6 @@ RSpec.configure do |config|
   # Use color not only in STDOUT but also in pagers and files
   config.tty = true
 
-  # Use the specified formatter
-  config.formatter = :documentation # :progress, :html, :json, CustomFormatterClass
+  # rspec -fd
+  # config.formatter = :documentation # :progress, :html, :json, CustomFormatterClass
 end
