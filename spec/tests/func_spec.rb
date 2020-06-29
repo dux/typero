@@ -10,6 +10,7 @@ FuncSchema = Typero.schema do
 
   integer! do
     num
+    labels Set[:label]
   end
 end
 
@@ -28,8 +29,12 @@ describe Typero do
     end
 
     it 'can defined nested schema' do
-      expect(FuncSchema.rules[:num][:type]).to eq(:integer)
-      expect(FuncSchema.rules[:num][:required]).to eq(true)
+      s = FuncSchema.rules
+      expect(s[:num][:type]).to eq(:integer)
+      expect(s[:num][:required]).to eq(true)
+      expect(s[:labels][:required]).to eq(true)
+      expect(s[:labels][:array]).to eq(true)
+      expect(s[:labels][:type]).to eq(:integer)
     end
   end
 end

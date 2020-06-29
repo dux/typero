@@ -28,7 +28,6 @@ module Typero
       end
 
       opts[:type] = :string if opts[:type].nil?
-      opts[:type] = @block_type if @block_type
 
       field = field.to_s
 
@@ -38,6 +37,7 @@ module Typero
           @block_type = field
           instance_exec &block
           @block_type = nil
+          return
         else
           raise ArgumentError.new 'If you use ! you have to provide a block'
         end
@@ -87,6 +87,7 @@ module Typero
       end
 
       opts[:type] ||= 'string'
+      opts[:type]   = @block_type if @block_type
       opts[:type]   = opts[:type].to_s.downcase.to_sym
 
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
