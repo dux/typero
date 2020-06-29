@@ -150,6 +150,28 @@ end
 
 ```
 
+### Advanced - bulk type define and function access
+
+Types can be assigned in a bulk, you just neeed to pass a block and end type with "!"
+
+Example numberos booleans with default false + integers
+
+Notice that any attribute can be a function. If it is, it will be evaluated at runtime inside the scope of given object.
+
+```ruby
+Typero.schema :bulk do
+  integer! do
+    org_id        req: proc { I18n.t('org.required') }
+    prroduct_id?
+  do
+
+  false! do
+    is_active
+    is_locked
+  end
+end
+```
+
 ### Built in types
 
 {{types}}

@@ -28,8 +28,20 @@ module Typero
       end
 
       opts[:type] = :string if opts[:type].nil?
+      opts[:type] = @block_type if @block_type
 
       field = field.to_s
+
+      if field.include?('!')
+        if block
+          field = field.sub('!', '')
+          @block_type = field
+          instance_exec &block
+          @block_type = nil
+        else
+          raise ArgumentError.new 'If you use ! you have to provide a block'
+        end
+      end
 
       # name? - opional name
       if field.include?('?')
