@@ -40,6 +40,15 @@ Typero.export :user do
   end
 end
 
+# default export after filter
+Typero.export do
+  prop :foo, :bar
+
+  response[:meta] = {
+    class: model.class.to_s,
+  }
+end
+
 ###
 
 describe Typero::Exporter do
@@ -75,5 +84,12 @@ describe Typero::Exporter do
     user     = User.new 'dux', 'dux@net.hr'
     response = Typero.export user, user: user, depth: 3
     expect(response[:company][:creator][:company][:name]).to eq('ACME')
+  end
+
+  it 'uses before filter' do
+    user     = User.new 'dux', 'dux@net.hr'
+    response = Typero.export user, user: user, depth: 3
+    expect(response[:foo]).to eq(:bar)
+    expect(response[:meta][:class]).to eq('User')
   end
 end

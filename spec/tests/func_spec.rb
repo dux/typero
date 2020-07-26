@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../fixtures/all'
+# require_relative '../fixtures/all'
 
 Typero.schema(:cache) do
   name
@@ -11,6 +11,10 @@ FuncSchema = Typero.schema do
   integer! do
     num
     labels Set[:label]
+  end
+
+  false! do
+    is_active
   end
 end
 
@@ -35,6 +39,7 @@ describe Typero do
       expect(s[:labels][:required]).to eq(true)
       expect(s[:labels][:array]).to eq(true)
       expect(s[:labels][:type]).to eq(:integer)
+      expect(s[:is_active][:type]).to eq(:boolean)
     end
   end
 end

@@ -34,7 +34,7 @@ module Typero
       if field.include?('!')
         if block
           field = field.sub('!', '')
-          @block_type = field
+          @block_type = field.to_sym
           instance_exec &block
           @block_type = nil
           return
@@ -67,12 +67,14 @@ module Typero
         opts[:array] = true
       end
 
+      opts[:type] = @block_type if @block_type
+
       # Boolean
-      if opts[:type].is_a?(TrueClass)
+      if opts[:type].is_a?(TrueClass) || opts[:type] == :true
         opts[:required] = false
         opts[:default]  = true
         opts[:type]     = :boolean
-      elsif opts[:type].is_a?(FalseClass)
+      elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false
         opts[:required] = false
         opts[:default]  = false
         opts[:type]     = :boolean
@@ -87,7 +89,6 @@ module Typero
       end
 
       opts[:type] ||= 'string'
-      opts[:type]   = @block_type if @block_type
       opts[:type]   = opts[:type].to_s.downcase.to_sym
 
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?

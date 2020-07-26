@@ -12,7 +12,7 @@ describe Typero::Schema do
       data downcase: true
     end
 
-    data  = { data: '   aBc        ' }
+    data  = { data: '  aBc  ' }
     errors = schema.validate data
     expect(data[:data]).to eq 'abc'
   end
@@ -67,5 +67,15 @@ describe Typero::Schema do
 
     errors = schema.validate url: 'https://slashdot.org'
     expect(errors[:url]).to be_nil
+  end
+
+  it 'should convert empty strings to nil' do
+    schema = Typero.schema do
+      foo
+    end
+    h = { foo: '', bar: '' }
+    schema.validate h
+    expect(h[:foo]).to eq(nil)
+    expect(h[:bar]).to eq('')
   end
 end

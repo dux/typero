@@ -51,6 +51,8 @@ module Typero
 
           add_required_error field, value.first, opts
         else
+          value = nil if value.to_s == ''
+
           # if value is not list of allowed values, raise error
           allowed = opts[:allow] || opts[:allowed] || opts[:values]
           if value && allowed && !allowed.include?(value)

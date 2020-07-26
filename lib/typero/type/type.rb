@@ -48,7 +48,7 @@ module Typero
     ###
 
     def initialize value, opts={}, &block
-      value = value.sub(/^\s+/, '').sub(/\s+$/, '') if value.is_a?(String)
+      value = value.strip.rstrip if value.is_a?(String)
 
       @value = value
       @opts  = opts

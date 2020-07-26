@@ -13,22 +13,27 @@ module Typero
 
       exporter = opts.delete(:exporter).to_s.classify
 
-      @model    = model
-      @opts     = opts
-      @block    = EXPORTERS[exporter] || raise('Exporter "%s" (:%s) not found' % [block, block.underscore])
-      @response = {}
+      @model        = model
+      @opts         = opts
+      @block        = EXPORTERS[exporter] || raise('Exporter "%s" (:%s) not found' % [exporter, exporter.to_s.underscore])
+      @after_filter = EXPORTERS[:after_filter]
+      @response     = {}
     end
 
     def render
       instance_exec &@block
+      instance_exec &@after_filter if @after_filter
       @response
     end
 
     private
 
     def export object, opts={}
-      if object.is_a?(Symbol)
+      case object
+      when Symbol
         return property object, export(model.send(object))
+      when Array
+        return object.map { |o| export(o) }
       end
 
       return if @opts[:current_depth] >= @opts[:depth]
@@ -42,17 +47,20 @@ module Typero
     def property name, data=:_undefined
       if block_given?
         data = yield if data == :_undefined
-        @response[name] = data
+        @response[name] = data unless data.nil?
       else
         data = data == :_undefined ? model.send(name) : data
 
-        if data.respond_to?(:export_json)
-          data = data.export_json
-        elsif data.respond_to?(:to_h)
-          data = data.to_h
+        if data
+          if data.respond_to?(:export_json)
+            data = data.export_json
+          elsif data.is_a?(Array)
+          elsif data.respond_to?(:to_h)
+            data = data.to_h
+          end
         end
 
-        @response[name] = data
+        @response[name] = data unless data.nil?
       end
     end
     alias :prop :property
