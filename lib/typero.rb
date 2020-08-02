@@ -1,8 +1,9 @@
+# require 'hash_wia'
+
 # base libs
 require_relative 'typero/typero'
 require_relative 'typero/schema'
 require_relative 'typero/params'
-require_relative 'typero/exporter'
 require_relative 'typero/type/type'
 
 # checker types

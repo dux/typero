@@ -53,15 +53,6 @@ module Typero
     end
   end
 
-  def export model=nil, opts={}, &block
-    if block_given?
-      name = model ? model.to_s.classify : :after_filter
-      Exporter::EXPORTERS[name] = block
-    else
-      Exporter.new(model, opts).render
-    end
-  end
-
   def defined? name
     Typero::Type.load name
     true
