@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 
-Typero.schema :user1 do
+Typero.schema :user1, type: :foo do
   name
   email :email
 end
@@ -10,7 +10,7 @@ Typero.schema :api1 do
   user  model: :user1
 end
 
-Typero.schema :api_dyn do
+Typero.schema :api_dyn, type: :foo do
   foo
   dyn do
     name
@@ -82,6 +82,11 @@ describe Typero::ModelType do
       }
       validated = Typero.schema(:api_dyn).validate(params)
       expect(validated.keys.length).to eq(0)
+    end
+
+    it 'gets types right' do
+      expect(Typero.schema(type: :foo).sort).to eq(['ApiDyn', 'User1'])
+      expect(Typero.schema(type: :baz)).to be_nil
     end
   end
 end

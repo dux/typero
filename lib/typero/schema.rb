@@ -1,6 +1,7 @@
 module Typero
   class Schema
     SCHEMAS = {}
+    TYPES   = {}
 
     # accepts dsl block to
     def initialize &block

@@ -35,21 +35,40 @@ module Typero
     end
   end
 
-  # load type schema
-  def schema name=nil, &block
-    # :user -> 'User'
-    name = name.to_s.classify if name
+  # load or set type schema
+  # Typero.schema(:blog) { ... }
+  # Typero.schema(:blog, type: :model) { ... }
+  # Typero.schema(:blog)
+  # Typero.schema(type: :model)
+  def schema name=nil, opts=nil, &block
+    klass = name.to_s.classify if name && !name.is_a?(Hash)
 
     if block_given?
       Typero::Schema.new(&block).tap do |schema|
-        Typero::Schema::SCHEMAS[name] = schema if name
+        if klass
+          Typero::Schema::SCHEMAS[klass] = schema
+
+          if opts && opts[:type]
+            Typero::Schema::TYPES[opts[:type]] ||= []
+            Typero::Schema::TYPES[opts[:type]].push klass unless Typero::Schema::TYPES[opts[:type]].include?(klass)
+          end
+        end
       end
     else
-      raise ArgumentError.new('Schema name not given') unless name
-
-      schema   = Typero::Schema::SCHEMAS[name]
-      schema ||= class_finder name, :schema
-      schema || nil
+      # Schema not given, get schema
+      if name.is_a?(Hash)
+        # Typero.schema type: :model
+        if type = name[:type]
+          Typero::Schema::TYPES[type]
+        end
+      elsif klass
+        # Typero.schema :user
+        schema   = Typero::Schema::SCHEMAS[klass]
+        schema ||= class_finder klass, :schema
+        schema || nil
+      else
+        raise ArgumentError, 'Schema type not defined.'
+      end
     end
   end
 
