@@ -57,7 +57,6 @@ module Typero
           # if value is not list of allowed values, raise error
           allowed = opts[:allow] || opts[:allowed] || opts[:values]
           if value && allowed && !allowed.include?(value)
-            ap [field, value, opts[:allowed]]
             add_error field, 'Value "%s" is not allowed' % value, opts
           end
 

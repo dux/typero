@@ -15,8 +15,23 @@ module Typero
     }
 
     # default shared allowed opts keys
-    OPTS_KEYS = [:allow, :allowed, :values, :type, :required, :req, :array, :min_count, :max_count, :default, :name, :meta, :model, :description]
     OPTS      = {}
+    OPTS_KEYS = [
+      :allow,
+      :allowed,
+      :array,
+      :default,
+      :description,
+      :max_count,
+      :meta,
+      :min_count,
+      :model,
+      :name,
+      :req,
+      :required,
+      :type,
+      :values
+    ]
 
     attr_reader :opts
 

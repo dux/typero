@@ -59,7 +59,7 @@ UserSchema = Typero do
   emails  Array[:email], duplicates: true, max_length: 5
   emails  Set[:email]
 
-  # manualy set field and value for protected fileds
+  # manualy set field and value for protected fields
   set :set, String
 
   # non required fields are defined by ?

@@ -23,8 +23,6 @@ describe Typero::Schema do
   end
 
   it 'name should be string' do
-    # ap @rules.rules
-
     @test.name = :dino
     @rules.valid? @test
     expect(@test.name).to eq('dino')

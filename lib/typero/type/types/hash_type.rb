@@ -2,7 +2,13 @@ class Typero::HashType < Typero::Type
   error :en, :not_hash_type_error, 'value is not hash type'
 
   def set
-    error_for(:not_hash_type_error) unless value.respond_to?(:keys) &&value.respond_to?(:values)
+    if value.is_a?(String) && value[0,1] == '{'
+      value = JSON.load(value)
+    end
+
+    value ||= {}
+
+    error_for(:not_hash_type_error) unless value.respond_to?(:keys) && value.respond_to?(:values)
 
     if opts[:allow]
       for key in value.keys
