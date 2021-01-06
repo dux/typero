@@ -59,7 +59,7 @@ UserSchema = Typero do
   emails  Array[:email], duplicates: true, max_length: 5
   emails  Set[:email]
 
-  # manualy set field and value for protected fileds
+  # manualy set field and value for protected fields
   set :set, String
 
   # non required fields are defined by ?
@@ -76,6 +76,20 @@ UserSchema = Typero do
   sallary  Integer, name: 'Plata', min: 1000, meta: { min_value_error: 'min is %s (%s given)' }
 end
 ```
+
+### Installation
+
+to install
+
+`gem install typero`
+
+or in Gemfile
+
+`gem 'typero'`
+
+and to use
+
+`require 'typero'`
 
 ### Usage
 
@@ -150,35 +164,60 @@ end
 
 ```
 
+### Advanced - bulk type define and function access
+
+Types can be assigned in a bulk, you just neeed to pass a block and end type with "!"
+
+Example numberos booleans with default false + integers
+
+Notice that any attribute can be a function. If it is, it will be evaluated at runtime inside the scope of given object.
+
+```ruby
+Typero.schema :bulk do
+  integer! do
+    org_id        req: proc { I18n.t('org.required') }
+    prroduct_id?
+  do
+
+  false! do
+    is_active
+    is_locked
+  end
+end
+```
+
 ### Built in types
 
-* **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean.rb)
-* **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency.rb)
-* **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date.rb)
-* **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime.rb)
-* **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email.rb)
-* **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float.rb)
+* **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean_type.rb)
+* **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency_type.rb)
+* **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date_type.rb)
+* **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime_type.rb)
+* **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email_type.rb)
+* **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float_type.rb)
   * `min: Minimum value`
   * `max: Maximun value`
   * `round: Round to (decimal spaces)`
-* **hash** - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/types/hash.rb)
-* **image** - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/types/image.rb)
+* **hash** - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/types/hash_type.rb)
+* **image** - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/types/image_type.rb)
   * `strict: Force image to have known extension (jpg, jpeg, gif, png, svg, webp)`
-* **integer** - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/types/integer.rb)
+* **integer** - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/types/integer_type.rb)
   * `min: Minimum value`
   * `max: Maximun value`
-* **label** - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/label.rb)
-* **model** - [Typero::ModelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/model.rb)
-* **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib.rb)
-* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point.rb)
-* **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string.rb)
+* **label** - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/label_type.rb)
+* **locale** - [Typero::LocaleType](https://github.com/dux/typero/blob/master/lib/typero/type/types/locale_type.rb)
+* **model** - [Typero::ModelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/model_type.rb)
+* **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib_type.rb)
+* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point_type.rb)
+* **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string_type.rb)
   * `min: Minimun string length`
   * `max: Maximun string length`
   * `downcase: is the string in downcase?`
-* **text** - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/types/text.rb)
+* **text** - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/types/text_type.rb)
   * `min: Minimun string length`
   * `max: Maximun string length`
-* **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url.rb)
+* **time** - [Typero::TimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/time_type.rb)
+* **timezone** - [Typero::TimezoneType](https://github.com/dux/typero/blob/master/lib/typero/type/types/timezone_type.rb)
+* **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url_type.rb)
 
 ### Create custom type
 
@@ -228,7 +267,9 @@ ERRORS = {
     max_date: 'Maximal allowed date is %s',
     unsupported_boolean: 'Unsupported boolean param value: %s',
     url_not_starting_error: 'URL is not starting with http or https',
+    locale_bad_format: 'Locale "%s" is in bad format (should be xx or xx-xx)',
     not_hash_type_error: 'value is not hash type',
+    invalid_time_zone: 'Invalid time zone',
     image_not_starting_error: 'URL is not starting with http',
     image_not_image_format: 'URL is not ending with jpg, jpeg, gif, png, svg, webp',
     not_8_chars_error: 'is not having at least 8 characters',

@@ -77,6 +77,20 @@ UserSchema = Typero do
 end
 ```
 
+### Installation
+
+to install
+
+`gem install typero`
+
+or in Gemfile
+
+`gem 'typero'`
+
+and to use
+
+`require 'typero'`
+
 ### Usage
 
 Can be used in plain, ActiveRecord (adapter missing) or Sequel classes.

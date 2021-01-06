@@ -13,7 +13,7 @@ for el in list.sort
   require_relative '../lib/typero/type/types/%s_type' % el
 
   klass = Typero::Type.load el
-  types.push '* **%s** - [%s](https://github.com/dux/typero/blob/master/lib/typero/type/types/%s.rb)' % [el, klass, el]
+  types.push '* **%s** - [%s](https://github.com/dux/typero/blob/master/lib/typero/type/types/%s_type.rb)' % [el, klass, el]
 
   for key, value in (Typero::Type::OPTS[klass] || {})
     types.push '  * `%s: %s`' % [key, value]
