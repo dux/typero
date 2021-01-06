@@ -3,16 +3,16 @@ class Typero::HashType < Typero::Type
 
   def set
     if value.is_a?(String) && value[0,1] == '{'
-      value = JSON.load(value)
+      @value = JSON.load(value)
     end
 
-    value ||= {}
+    @value ||= {}
 
-    error_for(:not_hash_type_error) unless value.respond_to?(:keys) && value.respond_to?(:values)
+    error_for(:not_hash_type_error) unless @value.respond_to?(:keys) && @value.respond_to?(:values)
 
     if opts[:allow]
-      for key in value.keys
-        value.delete(key) unless opts[:allow].include?(key)
+      for key in @value.keys
+        @value.delete(key) unless opts[:allow].include?(key)
       end
     end
   end
