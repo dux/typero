@@ -22,6 +22,7 @@ module Typero
       :array,
       :default,
       :description,
+      :delimiter,
       :max_count,
       :meta,
       :min_count,
@@ -53,10 +54,22 @@ module Typero
       end
 
       def opts key, desc
-        OPTS_KEYS.push key unless OPTS_KEYS.include?(key)
-
         OPTS[self] ||= {}
         OPTS[self][key] = desc
+      end
+
+      def allowed_opt? name
+        return true if OPTS_KEYS.include?(name)
+
+        OPTS[self] ||= {}
+        return true if OPTS[self][name]
+
+        msg  = %[Unallowed param "#{name}" for type "#{to_s}" found. Allowed are "#{OPTS_KEYS.join(', ')}"]
+        msg += %[ + "#{OPTS[self].keys.join(', ')}"] if OPTS[self].keys.first
+
+        block_given? ? yield(msg) : raise(ArgumentError, msg)
+
+        false
       end
     end
 
@@ -64,6 +77,8 @@ module Typero
 
     def initialize value, opts={}, &block
       value = value.strip.rstrip if value.is_a?(String)
+
+      opts.keys.each {|key| self.class.allowed_opt?(key) }
 
       @value = value
       @opts  = opts

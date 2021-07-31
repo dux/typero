@@ -49,11 +49,8 @@ module Typero
         opts[:required] = false
       end
 
-      if value = opts.delete(:req)
-        opts[:required] = value
-      else
-        opts[:required] = true if opts[:required].nil?
-      end
+      opts[:required] = opts.delete(:req) unless opts[:req].nil?
+      opts[:required] = true if opts[:required].nil?
 
       # array that allows duplicates
       if opts[:type].is_a?(Array)
@@ -74,12 +71,16 @@ module Typero
         opts[:required] = false
         opts[:default]  = true
         opts[:type]     = :boolean
-      elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false
-        opts[:required] = false
-        opts[:default]  = false
+      elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false || opts[:type] == :boolean
+        opts[:required] = false if opts[:required].nil?
+        opts[:default]  = false if opts[:default].nil?
         opts[:type]     = :boolean
       end
 
+      # model / schema
+      if opts[:type].class.ancestors.include?(Typero::Schema)
+        opts[:model] = opts.delete(:type)
+      end
       opts[:model] = opts.delete(:schema) if opts[:schema]
       opts[:type]  = :model if opts[:model]
 
@@ -94,8 +95,10 @@ module Typero
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
 
       # chek alloed params, all optional should go in meta
-      result = opts.keys - Typero::Type::OPTS_KEYS
-      raise ArgumentError.new('Unallowed Type params found: "%s", allowed: %s' % [result.join(' and '), Typero::Type::OPTS_KEYS.sort]) if result.length > 0
+      opts.keys.each do |key|
+        type = Typero::Type.load opts[:type]
+        type.allowed_opt?(key) {|err| raise ArgumentError, err }
+      end
 
       field = field.to_sym
 

@@ -139,26 +139,28 @@ schema.validate(@user)
 
 ```ruby
 # create model
-Typero.schema User do
+UserSchema = Typero.schema User do
   name
   email  :email
-  avatar :url
+  avatar? :url
 end
 
 # reference by model
 Typero.schema :api1 do
   # root params
   bar
-  foo  Integer
+  foo Integer
 
-  # hash has to match the model
-  user  model: User
+  # if hash matches schema, you can filter it on schema
+  # user model: UserSchema
+  # user schema: UserSchema
+  user UserSchema
 
   # or dynamic declaration
   user do
     name
     email :email
-    avatar :url
+    avatar? :url
   end
 end
 

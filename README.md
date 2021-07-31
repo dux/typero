@@ -139,26 +139,28 @@ schema.validate(@user)
 
 ```ruby
 # create model
-Typero.schema User do
+UserSchema = Typero.schema User do
   name
   email  :email
-  avatar :url
+  avatar? :url
 end
 
 # reference by model
 Typero.schema :api1 do
   # root params
   bar
-  foo  Integer
+  foo Integer
 
-  # hash has to match the model
-  user  model: User
+  # if hash matches schema, you can filter it on schema
+  # user model: UserSchema
+  # user schema: UserSchema
+  user UserSchema
 
   # or dynamic declaration
   user do
     name
     email :email
-    avatar :url
+    avatar? :url
   end
 end
 
@@ -191,7 +193,11 @@ end
 * **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean_type.rb)
 * **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency_type.rb)
 * **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date_type.rb)
+  * `min: Smallest date-time allowed`
+  * `max: Maximal date-time allowed`
 * **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime_type.rb)
+  * `min: Smallest date allowed`
+  * `max: Maximal date allowed`
 * **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email_type.rb)
 * **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float_type.rb)
   * `min: Minimum value`
@@ -263,18 +269,18 @@ ERRORS = {
     max_value_error: 'max is %s, got %s',
     unallowed_characters_error: 'is having unallowed characters',
     not_in_range: 'Value in not in allowed range (%s)',
+    unsupported_boolean: 'Unsupported boolean param value: %s',
     min_date: 'Minimal allowed date is %s',
     max_date: 'Maximal allowed date is %s',
-    unsupported_boolean: 'Unsupported boolean param value: %s',
-    url_not_starting_error: 'URL is not starting with http or https',
-    locale_bad_format: 'Locale "%s" is in bad format (should be xx or xx-xx)',
-    not_hash_type_error: 'value is not hash type',
-    invalid_time_zone: 'Invalid time zone',
-    image_not_starting_error: 'URL is not starting with http',
-    image_not_image_format: 'URL is not ending with jpg, jpeg, gif, png, svg, webp',
     not_8_chars_error: 'is not having at least 8 characters',
     missing_monkey_error: 'is missing @',
+    not_hash_type_error: 'value is not hash type',
+    image_not_starting_error: 'URL is not starting with http',
+    image_not_image_format: 'URL is not ending with jpg, jpeg, gif, png, svg, webp',
+    locale_bad_format: 'Locale "%s" is in bad format (should be xx or xx-xx)',
     not_an_oib_error: 'not in an OIB format',
+    invalid_time_zone: 'Invalid time zone',
+    url_not_starting_error: 'URL is not starting with http or https',
   }
 }
 ```

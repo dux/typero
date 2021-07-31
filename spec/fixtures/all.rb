@@ -39,4 +39,3 @@ TestSchema = Typero.schema do
 
   db :timestamps
 end
-

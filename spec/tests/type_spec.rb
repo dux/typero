@@ -49,7 +49,7 @@ describe Typero::Schema do
 
     expect(errors[:foo]).to be_nil
     expect(errors[:bar]).to be_nil
-    expect(errors[:baz]).to include('required')
+    expect(errors[:baz]).to be_nil
 
     data = { foo: 'off', bar: '1', baz: 'false' }
     errors = schema.validate data
@@ -77,5 +77,23 @@ describe Typero::Schema do
     schema.validate h
     expect(h[:foo]).to eq(nil)
     expect(h[:bar]).to eq('')
+  end
+
+  it 'should break on bad paramter' do
+    expect do
+      Typero.schema { foo req: true, bad_arg: true }
+    end.to raise_error ArgumentError
+
+    expect do
+      Typero.schema { num :float, downcase: true }
+    end.to raise_error ArgumentError
+  end
+
+  it 'shoud load type class' do
+    expect(Typero.type(:string)).to eq(Typero::StringType)
+  end
+
+  it 'shoud load and validate type class' do
+    # expect(Typero.type(:string, 'FOO', downcase: true)).to eq('foo')
   end
 end

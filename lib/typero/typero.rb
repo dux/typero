@@ -22,18 +22,28 @@ module Typero
   VERSION = File.read File.expand_path "../../.version", File.dirname(__FILE__)
 
   # check and coerce value
-  # Typero.set(:label, 'Foo bar') -> "foo-bar"
-  def set type, value, opts = {}, &block
-    check = Typero::Type.load(type).new value, opts
-    check.get
-  rescue TypeError => error
-    if block
-      block.call error
-      false
+  # Typero.type(:label) -> Typero::LabelType
+  # Typero.type(:label, 'Foo bar') -> "foo-bar"
+  def type klass_name, value = :_undefined, opts = {}, &block
+    klass = Typero::Type.load(klass_name)
+
+    if value == :_undefined
+      klass
     else
-      raise error
+      begin
+        check = klass.new value, opts
+        check.get
+      rescue TypeError => error
+        if block
+          block.call error
+          false
+        else
+          raise error
+        end
+      end
     end
   end
+  alias :set :type
 
   # load or set type schema
   # Typero.schema(:blog) { ... }

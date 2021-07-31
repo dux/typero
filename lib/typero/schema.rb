@@ -23,6 +23,9 @@ module Typero
       end
 
       @schema.rules.each do |field, opts|
+        # force filed as a symbol
+        field = field.to_sym
+
         for k in opts.keys
           opts[k] = @object.instance_exec(&opts[k]) if opts[k].is_a?(Proc)
         end
@@ -30,8 +33,16 @@ module Typero
         # set value to default if value is blank and default given
         @object[field] = opts[:default] if opts[:default] && @object[field].blank?
 
-        # get field value
-        value = @object[field]
+        if @object.respond_to?(:key?)
+          if @object.key?(field)
+            value = @object[field]
+          elsif @object.key?(field.to_s)
+            # invalid string key, needs fix
+            value = @object[field] = @object.delete(field.to_s)
+          end
+        else
+          value = @object[field]
+        end
 
         if opts[:array]
           unless value.respond_to?(:each)

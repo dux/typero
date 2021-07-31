@@ -27,7 +27,7 @@ module Sequel::Plugins::TyperoAttributes
 
           # we only check if field is changed
           if value.present? && column_changed?(field) && self.class.xwhere('LOWER(%s)=LOWER(?) and id<>?' % field, value, id).first
-            error = unique.class == TrueClass ? %[Value '"#{value}"' for #{field} allready exists] : unique
+            error = unique.class == TrueClass ? %[Value "#{value}" for field "#{field}" has been already used, please chose another value.] : unique
             errors.add(field, error) unless (errors.on(field) || []).include?(error)
           end
         end

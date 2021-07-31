@@ -1,4 +1,7 @@
 class Typero::DateType < Typero::Type
+  opts :min, 'Smallest date-time allowed'
+  opts :max, 'Maximal date-time allowed'
+
   error :en, :min_date, 'Minimal allowed date is %s'
   error :en, :max_date, 'Maximal allowed date is %s'
 
