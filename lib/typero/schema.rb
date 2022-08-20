@@ -1,8 +1,5 @@
 module Typero
   class Schema
-    SCHEMAS = {}
-    TYPES   = {}
-
     # accepts dsl block to
     def initialize &block
       raise "Params not defined" unless block_given?
@@ -67,11 +64,12 @@ module Typero
 
           # if value is not list of allowed values, raise error
           allowed = opts[:allow] || opts[:allowed] || opts[:values]
-          if value && allowed && !allowed.include?(value)
+          if value && allowed && !allowed.map(&:to_s).include?(value.to_s)
             add_error field, 'Value "%s" is not allowed' % value, opts
           end
 
           value = check_filed_value field, value, opts
+
           add_required_error field, value, opts
         end
 

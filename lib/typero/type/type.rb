@@ -98,7 +98,11 @@ module Typero
         opts[:default].nil? ? default : opts[:default]
       else
         set
-        error_for(:not_in_range, opts[:values].join(', ')) if opts[:values] && !opts[:values].include?(@value)
+
+        if opts[:values] && !opts[:values].map(&:to_s).include?(@value.to_s)
+          error_for(:not_in_range, opts[:values].join(', '))
+        end
+
         value
       end
     end

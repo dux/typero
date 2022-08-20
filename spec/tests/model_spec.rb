@@ -86,7 +86,7 @@ describe Typero::ModelType do
 
     it 'gets types right' do
       expect(Typero.schema(type: :foo).sort).to eq(['ApiDyn', 'User1'])
-      expect(Typero.schema(type: :baz)).to be_nil
+      expect(Typero.schema(type: :baz)).to eq([])
     end
   end
 end
