@@ -1,6 +1,7 @@
 require 'amazing_print'
 require 'active_support/all'
 
+require_relative './lib/blank'
 require_relative '../lib/typero'
 
 # basic config
@@ -13,4 +14,12 @@ RSpec.configure do |config|
 
   # rspec -fd
   # config.formatter = :documentation # :progress, :html, :json, CustomFormatterClass
+end
+
+class Object
+  def rr data
+    puts '- start: %s - %s' % [data.inspect, caller[0].sub(__dir__+'/', '')]
+    ap data
+    puts '- end'
+  end
 end

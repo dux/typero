@@ -19,7 +19,8 @@
 module Typero
   extend self
 
-  VERSION = File.read File.expand_path "../../.version", File.dirname(__FILE__)
+  VERSION ||= File.read File.expand_path "../../.version", File.dirname(__FILE__)
+  SCHEMAS ||= {}
 
   # check and coerce value
   # Typero.type(:label) -> Typero::LabelType
@@ -45,37 +46,52 @@ module Typero
   end
   alias :set :type
 
-  # load or set type schema
+  # type schema
   # Typero.schema(:blog) { ... }
+
+  # type schema with option
   # Typero.schema(:blog, type: :model) { ... }
+
+  # get schema
   # Typero.schema(:blog)
+
+  # get schema with options (as array)
+  # Typero.schema(:blog, :with_schema)
+
+  # get all schema names with type: model
   # Typero.schema(type: :model)
-  def schema name=nil, opts=nil, &block
+  def schema name = nil, opts = nil, &block
     klass = name.to_s.classify if name && !name.is_a?(Hash)
 
     if block_given?
       Typero::Schema.new(&block).tap do |schema|
         if klass
-          Typero::Schema::SCHEMAS[klass] = schema
-
-          if opts && opts[:type]
-            Typero::Schema::TYPES[opts[:type]] ||= []
-            Typero::Schema::TYPES[opts[:type]].push klass unless Typero::Schema::TYPES[opts[:type]].include?(klass)
-          end
+          SCHEMAS[klass] = [schema, opts || {}]
         end
       end
     else
       # Schema not given, get schema
       if name.is_a?(Hash)
         # Typero.schema type: :model
-        if type = name[:type]
-          Typero::Schema::TYPES[type]
+        out = []
+
+        for key, _ in SCHEMAS
+          schema, opts = _
+          next unless opts[name.keys.first] == name.values.first
+          out.push key.classify
         end
+
+        out
       elsif klass
         # Typero.schema :user
-        schema   = Typero::Schema::SCHEMAS[klass]
+        schema   = SCHEMAS[klass]
         schema ||= class_finder klass, :schema
-        schema || nil
+
+        if opts
+          schema
+        else
+          schema.respond_to?(:[]) ? schema[0] : schema
+        end
       else
         raise ArgumentError, 'Schema type not defined.'
       end

@@ -7,6 +7,7 @@ class Typero::HashType < Typero::Type
     end
 
     @value ||= {}
+    @value.delete_if {|_, v| v.empty? }
 
     error_for(:not_hash_type_error) unless @value.respond_to?(:keys) && @value.respond_to?(:values)
 

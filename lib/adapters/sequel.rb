@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Sequel::Plugins::TyperoAttributes
+module Sequel::Plugins::Typero
   module ClassMethods
     def typero
       Typero.schema self
@@ -48,5 +48,5 @@ module Sequel::Plugins::TyperoAttributes
   end
 end
 
-Sequel::Model.plugin :typero_attributes
+# Sequel::Model.plugin :typero
 
