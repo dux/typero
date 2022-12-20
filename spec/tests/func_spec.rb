@@ -29,7 +29,7 @@ describe Typero do
     end
 
     it 'it can access the class stype schema' do
-      expect(Typero.schema(:func).rules[:name][:type]).to eq(:string)
+      expect(FuncSchema.rules[:name][:type]).to eq(:string)
     end
 
     it 'can defined nested schema' do

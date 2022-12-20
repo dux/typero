@@ -1,14 +1,51 @@
+# Typero.schema :user, type: :model do
+
+# Typero.schema :some_name, type: :model, db: DB_LOG do
+#   set :name, String, req: true
+#   set :email, :email, req: true
+#   set :emails, [:email], min: 2
+# end
+#
+# rules = Typero.schema :some_name
+#
+# or
+#
+# rules = Typero.schema do
+#   string :name, req: true    # generic email string
+#   email :email, req: true    # string of type email
+#   emails [:skills], min: 2   # list of emails in filed named "emails"
+# end
+#
+# errors = rules.validate (@object || @hash)
+# rules.valid? (@object)
+# rules.validate(@object) {|errors| ... }
+
 module Typero
   class Schema
+    SCHEMA_STORE ||= {}
+
+    attr_reader :klass
+    attr_reader :schema
+    attr_reader :opts
+
     # accepts dsl block to
-    def initialize &block
-      raise "Params not defined" unless block_given?
-      @schema = Params.new &block
+    def initialize name, opts = nil, &block
+      if block
+        @opts   = opts || {}
+        @schema = Params.new &block
+
+        if name
+          @klass = name
+          SCHEMA_STORE[name] = self
+        end
+      else
+        raise "Use Typero.schema(:name) to load stored schema"
+      end
     end
 
     # validates any instance object with hash variable interface
     # it also coarces values
-    def validate object, options=nil
+    def validate object, options = nil
       @options = options || {}
       @object  = object
       @errors  = {}
@@ -99,7 +136,7 @@ module Typero
         schema_opts = @schema.rules[field]
         opts[:array] = true if schema_opts[:array]
 
-        total << [type, field, opts]
+        total << [field, type, opts]
       end
 
       out += @schema.db_rules

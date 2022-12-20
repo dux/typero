@@ -1,4 +1,5 @@
-# Base class for schema validation
+# Base class for schema validation.
+# Accepts set of params and returns hash of porsed rules
 
 module Typero
   class Params
@@ -114,7 +115,7 @@ module Typero
     # db :timestamps
     # db :add_index, :code -> t.add_index :code
     def db *args
-      @db_rules.push args
+      @db_rules.push args.unshift(:db_rule!)
     end
 
     # set :age, type: :integer -> integer :age

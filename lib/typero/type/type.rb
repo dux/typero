@@ -71,6 +71,10 @@ module Typero
 
         false
       end
+
+      def db_schema
+        new(nil).db_schema
+      end
     end
 
     ###
