@@ -65,7 +65,9 @@ module Typero
         end
 
         # set value to default if value is blank and default given
-        @object[field] = opts[:default] if opts[:default] && @object[field].blank?
+        if !opts[:default].nil? && @object[field].to_s.blank?
+          @object[field] = opts[:default]
+        end
 
         if @object.respond_to?(:key?)
           if @object.key?(field)
