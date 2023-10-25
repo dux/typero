@@ -5,6 +5,12 @@ module Sequel::Plugins::Typero
     def typero
       Typero.schema self
     end
+
+    def schema name = nil, &block
+      name ||= self
+      name = name.to_s.underscore.singularize
+      Typero.schema name, type: :model, db: self.db, &block
+    end
   end
 
   module InstanceMethods

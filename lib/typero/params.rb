@@ -1,6 +1,9 @@
 # Base class for schema validation.
 # Accepts set of params and returns hash of porsed rules
 
+require 'set'
+require 'json'
+
 module Typero
   class Params
     attr_reader :db_rules
@@ -118,11 +121,9 @@ module Typero
       @db_rules.push args.unshift(:db_rule!)
     end
 
-    # set :age, type: :integer -> integer :age
-    # email :email
-    #
-    # set :emails, Array[:email]
-    # email Array[:emails]
+    # if method undefine, call set method
+    # age Integer -> set :age, type: :integer
+    # email Array[:emails] -> set :emails, Array[:email]
     def method_missing field, *args, &block
       set field, *args, &block
     end

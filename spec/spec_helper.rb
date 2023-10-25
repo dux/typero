@@ -1,8 +1,9 @@
 require 'amazing_print'
-require 'active_support/all'
-
+require 'sequel'
 require_relative './lib/blank'
 require_relative '../lib/typero'
+
+Sequel.extension :inflector
 
 # basic config
 RSpec.configure do |config|

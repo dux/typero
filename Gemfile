@@ -2,6 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'activesupport'
+gem 'sequel'
 gem 'amazing_print'
 gem 'rspec'

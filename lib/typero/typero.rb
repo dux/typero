@@ -1,3 +1,5 @@
+# module quick qcess tp other types
+
 module Typero
   extend self
 
@@ -62,6 +64,11 @@ module Typero
         Typero::Schema::SCHEMA_STORE[klass] || raise('Schema "%s" not found' % klass)
       end
     end
+  end
+
+  # get array of database fields, ruby Sequel compatibile
+  def db_schema name
+    Typero.schema(name).db_schema
   end
 
   def defined? name

@@ -11,6 +11,8 @@ class Typero::SimplePointType < Typero::Type
     if !value.include?('POINT') && value.include?(',')
       value { value.split(/\s*,\s*/)[0,2] }
     end
+
+    # value { value.map { sprintf("%.16f", _1).to_f } }
   end
 
   def db_schema
