@@ -23,6 +23,7 @@ module Typero
       :default,
       :description,
       :delimiter,
+      :index,
       :max_count,
       :meta,
       :min_count,

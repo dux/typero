@@ -1,11 +1,27 @@
-# Base class for schema validation.
-# Accepts set of params and returns hash of porsed rules
+# Base class for schema validation, this loads and defined schema.
+# Accepts set of params and returns hash of parsed rules
+
+# module Typero
+#   class Loader
+#     def timestamps
+#       created_at Time
+#       created_by_ref
+#     end
+#   end
+# end
+
+# class Task < ApplicationModel
+#   schema do
+#     name           # string type
+#     timestamps     # metod defined -> call
+#   end
+# end
 
 require 'set'
 require 'json'
 
 module Typero
-  class Params
+  class Define
     attr_reader :db_rules
 
     def initialize &block
@@ -106,7 +122,9 @@ module Typero
 
       field = field.to_sym
 
-      db :add_index, field if opts.delete(:index)
+      if opts.delete(:index)
+        db :add_index, field
+      end
 
       # trigger error if type not found
       Typero::Type.load opts[:type]

@@ -16,9 +16,8 @@
 #   emails [:skills], min: 2   # list of emails in filed named "emails"
 # end
 #
-# errors = rules.validate (@object || @hash)
+# errors = rules.validate (@object || @hash) {|errors| ... }
 # rules.valid? (@object)
-# rules.validate(@object) {|errors| ... }
 
 module Typero
   class Schema
@@ -32,7 +31,7 @@ module Typero
     def initialize name, opts = nil, &block
       if block
         @opts   = opts || {}
-        @schema = Params.new &block
+        @schema = Define.new &block
 
         if name
           @klass = name

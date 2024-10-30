@@ -13,7 +13,7 @@ class Typero::DatetimeType < Typero::DateType
   end
 
   def db_schema
-    [:datetime]
+    [:timestamp]
   end
 end
 
