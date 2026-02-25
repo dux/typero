@@ -10,7 +10,7 @@ class Typero::ModelType < Typero::Type
       errors[field] = error
     end
 
-    @value.delete_if {|_, v| v.empty? }
+    @value.delete_if {|_, v| v.respond_to?(:empty?) && v.empty? }
 
     raise TypeError.new errors.to_json if errors.keys.first
   end

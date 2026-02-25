@@ -4,9 +4,15 @@ class Typero::DatetimeType < Typero::DateType
   opts :min, 'Smallest date allowed'
   opts :max, 'Maximal date allowed'
 
+  error :en, :invalid_datetime, 'is not a valid datetime'
+
   def set
     unless [Time, DateTime].include?(value.class)
-      value { |data| DateTime.parse(data) }
+      begin
+        value { |data| DateTime.parse(data.to_s) }
+      rescue Date::Error, ArgumentError
+        error_for(:invalid_datetime)
+      end
     end
 
     check_date_min_max

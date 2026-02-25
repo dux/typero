@@ -10,7 +10,9 @@ class Typero::ImageType < Typero::Type
     error_for(:image_not_starting_error) unless value =~ /^https?:\/\/./
 
     if opts[:strict]
-      ext = value.split('.').last.downcase
+      # strip query string and fragment before checking extension
+      path = value.split('?').first.split('#').first
+      ext = path.split('.').last.downcase
       error_for(:image_not_image_format) unless FORMATS.include?(ext)
     end
   end

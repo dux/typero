@@ -186,8 +186,11 @@ name required: false    # required: false (explicit)
 ```ruby
 is_active true          # boolean, required: false, default: true
 is_locked false         # boolean, required: false, default: false
+is_public :boolean      # boolean, required: false, default: false
 age Integer, default: 0 # integer with default
 ```
+
+All boolean variants (`:boolean`, `true`, `false`) default to `required: false`.
 
 ### Array fields
 
@@ -315,26 +318,26 @@ Locale detected from: `Lux.current.locale` > `I18n.locale` > `:en`
 
 | Type | Ruby class | Opts | DB type | Notes |
 |------|-----------|------|---------|-------|
-| string | StringType | min, max, downcase | :string (limit: 255) | default type |
-| text | TextType | min, max | :text | inherits StringType |
+| string | StringType | min, max, downcase | :string (limit: 255) | default type, max defaults to 255 |
+| text | TextType | min, max | :text | no default max (unlike string) |
 | integer | IntegerType | min, max | :integer | |
 | float | FloatType | min, max, round | :float | |
-| currency | CurrencyType | | :decimal (8,2) | always rounds to 2 decimals |
+| currency | CurrencyType | min, max | :decimal (8,2) | always rounds to 2 decimals, supports min/max |
 | boolean | BooleanType | | :boolean | truthy: true/1/on, falsy: false/0/off |
 | email | EmailType | | :string (limit: 120) | downcases, checks @ and length |
-| url | UrlType | | :string | checks http/https prefix |
+| url | UrlType | | :string | validates http:// or https:// prefix |
 | label | LabelType | | :string (limit: 30) | slug format: lowercase, alphanumeric + hyphens |
-| date | DateType | min, max | :date | strips time component |
-| datetime | DatetimeType | min, max | :timestamp | preserves time |
+| date | DateType | min, max | :date | strips time component, rescues invalid input |
+| datetime | DatetimeType | min, max | :timestamp | preserves time, rescues invalid input |
 | time | TimeType | min, max | :timestamp | alias for datetime |
-| hash | HashType | allow | :jsonb | parses JSON strings, removes empty values |
-| image | ImageType | strict | :string | checks http prefix, optionally checks extension |
+| hash | HashType | allow | :jsonb | parses JSON strings via JSON.parse |
+| image | ImageType | strict | :string | checks http prefix, strips query params for ext check |
 | model | ModelType | model/schema | :jsonb | nested schema validation |
 | point | PointType | | :geography | PostGIS SRID=4326 format |
 | simple_point | SimplePointType | | :float (array) | float array [lat, lng] |
 | locale | LocaleType | | :string (limit: 5) | validates xx or xx-xx format |
 | timezone | TimezoneType | | :string (limit: 50) | validates via TZInfo |
-| oib | OibType | | :string (limit: 11) | Croatian ID, ISO 7064 MOD 11,10 checksum |
+| oib | OibType | | :string (limit: 11) | Croatian ID, ISO 7064 MOD 11,10 checksum, stored as string |
 
 ## Sequel adapter
 

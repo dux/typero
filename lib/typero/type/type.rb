@@ -5,12 +5,12 @@ module Typero
     ERRORS = {
       en: {
         # errors shared between various types
-        min_length_error: 'min lenght is %s, you have %s',
-        max_length_error: 'max lenght is %s, you have %s',
+        min_length_error: 'min length is %s, you have %s',
+        max_length_error: 'max length is %s, you have %s',
         min_value_error: 'min is %s, got %s',
         max_value_error: 'max is %s, got %s',
         unallowed_characters_error: 'is having unallowed characters',
-        not_in_range: 'Value in not in allowed range (%s)'
+        not_in_range: 'Value is not in allowed range (%s)'
       }
     }
 
@@ -23,6 +23,7 @@ module Typero
       :default,
       :description,
       :delimiter,
+      :duplicates,
       :index,
       :max_count,
       :meta,
@@ -81,7 +82,7 @@ module Typero
     ###
 
     def initialize value, opts={}, &block
-      value = value.strip.rstrip if value.is_a?(String)
+      value = value.strip if value.is_a?(String)
 
       opts.keys.each {|key| self.class.allowed_opt?(key) }
 

@@ -61,23 +61,23 @@ module Typero
     end
 
     # validates any instance object with hash variable interface
-    # it also coarces values
+    # it also coerces values
     def validate object, options = nil
-      @options = options || {}
       @object  = object
       @errors  = {}
+      options  = options || {}
 
       # remove undefined keys if Hash provided
-      if @options[:strict] && object.is_a?(Hash)
+      if options[:strict] && object.is_a?(Hash)
         undefined = object.keys.map(&:to_s) - @schema.rules.keys.map(&:to_s)
         object.delete_if { |k, _| undefined.include?(k.to_s) }
       end
 
       @schema.rules.each do |field, opts|
-        # force filed as a symbol
+        # force field as a symbol
         field = field.to_sym
 
-        for k in opts.keys
+        opts.keys.each do |k|
           opts[k] = @object.instance_exec(&opts[k]) if opts[k].is_a?(Proc)
         end
 
@@ -105,7 +105,7 @@ module Typero
 
           value = value
             .flatten
-            .map { |el| el.to_s == '' ? nil : check_filed_value(field, el, opts) }
+            .map { |el| el.to_s == '' ? nil : check_field_value(field, el, opts) }
             .compact
 
           value = Set.new(value).to_a unless opts[:duplicates]
@@ -124,7 +124,7 @@ module Typero
             add_error field, 'Value "%s" is not allowed' % value, opts
           end
 
-          value = check_filed_value field, value, opts
+          value = check_field_value field, value, opts
 
           add_required_error field, value, opts
         end
@@ -148,10 +148,10 @@ module Typero
     # returns field, db_type, db_opts
     def db_schema
       out = @schema.rules.inject([]) do |total, (field, opts)|
-        # get db filed schema
+        # get db field schema
         type, opts  = Typero::Type.load(opts[:type]).new(nil, opts).db_field
 
-        # add array true to field it ont defined in schema
+        # add array true to field if not defined in schema
         schema_opts = @schema.rules[field]
         opts[:array] = true if schema_opts[:array]
 
@@ -163,7 +163,7 @@ module Typero
       out
     end
 
-    # iterate trough all the ruels via block interface
+    # iterate through all the rules via block interface
     # schema.rules do |field, opts|
     # schema.rules(:url) do |field, opts|
     def rules filter = nil, &block
@@ -202,18 +202,20 @@ module Typero
       add_error field, msg, opts
     end
 
-    def check_filed_value field, value, opts
+    def check_field_value field, value, opts
       klass = "Typero::%sType" % safe_type(opts[:type])
       check = klass.constantize.new value, opts
       check.get
     rescue TypeError => e
       if e.message[0] == '{'
-        for key, msg in JSON.parse(e.message)
+        JSON.parse(e.message).each do |key, msg|
           add_error [field, key].join('.'), msg, opts
         end
       else
         add_error field, e.message, opts
       end
+    rescue JSON::ParserError
+      add_error field, e.message, opts
     end
   end
 end

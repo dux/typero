@@ -14,7 +14,7 @@ class Typero::PointType < Typero::Type
       value { 'SRID=4326;POINT(%s)' % point }
     end
 
-    if value && value.include?(',') && !value =~ /^SRID=4326;POINT\(/
+    if value && value.include?(',') && value !~ /^SRID=4326;POINT\(/
       error_for(:unallowed_characters_error)
     end
   end

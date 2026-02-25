@@ -3,11 +3,11 @@ class Typero::HashType < Typero::Type
 
   def set
     if value.is_a?(String) && value[0,1] == '{'
-      @value = JSON.load(value)
+      @value = JSON.parse(value)
     end
 
     @value ||= {}
-    @value.delete_if {|_, v| v.empty? }
+    @value.delete_if {|_, v| v.respond_to?(:empty?) && v.empty? }
 
     error_for(:not_hash_type_error) unless @value.respond_to?(:keys) && @value.respond_to?(:values)
 

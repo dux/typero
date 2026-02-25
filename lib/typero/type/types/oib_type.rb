@@ -3,7 +3,7 @@ class Typero::OibType < Typero::Type
 
   def set
     value do |data|
-      check?(data) ? data.to_i : error_for(:not_an_oib_error)
+      check?(data) ? data.to_s : error_for(:not_an_oib_error)
     end
   end
 

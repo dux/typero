@@ -92,13 +92,13 @@ module Typero
         opts[:default]  = true
         opts[:type]     = :boolean
       elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false || opts[:type] == :boolean
-        opts[:required] = false if opts[:required].nil?
+        opts[:required] = false
         opts[:default]  = false if opts[:default].nil?
         opts[:type]     = :boolean
       end
 
       # model / schema
-      if opts[:type].class.ancestors.include?(Typero::Schema)
+      if opts[:type].is_a?(Typero::Schema)
         opts[:model] = opts.delete(:type)
       end
       opts[:model] = opts.delete(:schema) if opts[:schema]
@@ -109,14 +109,13 @@ module Typero
         opts[:model] = Typero.schema &block
       end
 
-      opts[:type] ||= 'string'
-      opts[:type]   = opts[:type].to_s.downcase.to_sym
+      opts[:type] = opts[:type].to_s.downcase.to_sym
 
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
 
-      # chek alloed params, all optional should go in meta
+      # check allowed params, all optional should go in meta
+      type = Typero::Type.load opts[:type]
       opts.keys.each do |key|
-        type = Typero::Type.load opts[:type]
         type.allowed_opt?(key) {|err| raise ArgumentError, err }
       end
 
@@ -125,9 +124,6 @@ module Typero
       if opts.delete(:index)
         db :add_index, field
       end
-
-      # trigger error if type not found
-      Typero::Type.load opts[:type]
 
       @rules[field] = opts
     end

@@ -1,4 +1,4 @@
-# module quick qcess tp other types
+# module quick access to other types
 
 module Typero
   extend self
@@ -52,7 +52,7 @@ module Typero
         #   Typero.schema type: :model
         out = []
 
-        for schema in Schema::SCHEMA_STORE.values
+        Schema::SCHEMA_STORE.values.each do |schema|
           if schema.opts[name.keys.first] == name.values.first
             out.push schema.klass
           end

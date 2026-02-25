@@ -1,6 +1,6 @@
 class Typero::IntegerType < Typero::Type
   opts :min, 'Minimum value'
-  opts :max, 'Maximun value'
+  opts :max, 'Maximum value'
 
   def set
     value(&:to_i)

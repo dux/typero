@@ -1,6 +1,6 @@
 class Typero::StringType < Typero::Type
-  opts :min, 'Minimun string length'
-  opts :max, 'Maximun string length'
+  opts :min, 'Minimum string length'
+  opts :max, 'Maximum string length'
   opts :downcase, 'is the string in downcase?'
 
   def set

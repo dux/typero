@@ -41,7 +41,7 @@ module Sequel::Plugins::Typero
           end
 
           # check protected fields
-          if prot = rule.dig(:meta, :protected) && self[:id]
+          if (prot = rule.dig(:meta, :protected)) && self[:id]
             if column_changed?(field)
               error = prot.class == TrueClass ? "value once defined can't be overwritten." : prot
               errors.add(field, error) unless (errors.on(field) || []).include?(error)
