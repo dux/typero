@@ -66,6 +66,12 @@ module Typero
     end
   end
 
+  # same as schema but returns nil if not found
+  def schema? name
+    klass = name.to_s.classify if name
+    Typero::Schema::SCHEMA_STORE[klass] if klass
+  end
+
   # get array of database fields, ruby Sequel compatibile
   def db_schema name
     Typero.schema(name).db_schema

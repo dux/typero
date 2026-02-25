@@ -7,7 +7,7 @@ module Sequel::Plugins::Typero
       name = name.to_s.underscore.singularize
       value = Typero.schema name, type: :model, &block
 
-      if ENV['DB_MIGRATE'] == 'true'
+      if ENV['DB_MIGRATE'] == 'true' && defined?(AutoMigrate)
         AutoMigrate.apply_schema self
       end
 
@@ -21,7 +21,7 @@ module Sequel::Plugins::Typero
       super
 
       # Typero schema check
-      if schema = Typero.schema(self.class)
+      if schema = Typero.schema?(self.class)
         schema.validate(self) do |name, err|
           errors.add(name, err) unless (errors.on(name) || []).include?(err)
         end
