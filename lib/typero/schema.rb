@@ -27,10 +27,14 @@ module Typero
     attr_reader :schema
     attr_reader :opts
 
-    # accepts dsl block to
-    def initialize name, opts = nil, &block
-      if block
-        @opts   = opts || {}
+    # accepts dsl block to define schema
+    # or define: keyword for internal use (only/except)
+    def initialize name, opts = nil, define: nil, &block
+      @opts = opts || {}
+
+      if define
+        @schema = define
+      elsif block
         @schema = Define.new &block
 
         if name
@@ -40,6 +44,20 @@ module Typero
       else
         raise "Use Typero.schema(:name) to load stored schema"
       end
+    end
+
+    # returns new schema with only specified keys
+    def only *keys
+      keys = keys.map(&:to_sym)
+      filtered = rules.select { |k, _| keys.include?(k) }
+      self.class.new(nil, define: Define.new(filtered))
+    end
+
+    # returns new schema without specified keys
+    def except *keys
+      keys = keys.map(&:to_sym)
+      filtered = rules.reject { |k, _| keys.include?(k) }
+      self.class.new(nil, define: Define.new(filtered))
     end
 
     # validates any instance object with hash variable interface

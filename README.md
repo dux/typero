@@ -166,6 +166,49 @@ end
 
 ```
 
+### Schema filtering with `only` and `except`
+
+You can derive a new schema from an existing one by selecting or excluding fields. Both methods return a new `Typero::Schema` instance that supports validation, rules, and chaining.
+
+```ruby
+UserSchema = Typero.schema do
+  name
+  email      :email
+  password
+  age        Integer, default: 21
+  is_active  false
+end
+
+# keep only specific fields
+UserSchema.only(:name, :email)
+# => schema with fields: name, email
+
+# remove specific fields
+UserSchema.except(:password)
+# => schema with fields: name, email, age, is_active
+
+# chaining
+UserSchema.except(:password).only(:name, :email)
+# => schema with fields: name, email
+
+# the returned schema is fully functional
+schema = UserSchema.only(:name, :email)
+errors = schema.validate({ name: 'Dux', email: 'dux@net.hr' })
+
+# works with nested schemas too
+ProfileSchema = Typero.schema do
+  name
+  settings do
+    theme
+    lang default: 'en'
+  end
+end
+
+ProfileSchema.only(:settings)  # nested model field preserved with all its rules
+```
+
+String keys are accepted and converted to symbols automatically. The original schema is never mutated.
+
 ### Advanced - bulk type define and function access
 
 Types can be assigned in a bulk, you just neeed to pass a block and end type with "!"

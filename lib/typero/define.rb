@@ -24,10 +24,10 @@ module Typero
   class Define
     attr_reader :db_rules
 
-    def initialize &block
+    def initialize rules = nil, &block
       @db_rules = []
-      @rules    = {}
-      instance_exec &block
+      @rules    = rules || {}
+      instance_exec &block if block
     end
 
     def rules
