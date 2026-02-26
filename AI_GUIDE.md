@@ -249,8 +249,8 @@ email :email, meta: { unique: true, protected: true }
 ### DB-only directives
 
 ```ruby
-db :timestamps                # appended as [:db_rule!, :timestamps]
-db :add_index, :code          # appended as [:db_rule!, :add_index, :code]
+db :timestamps                # appended as [:timestamps]
+db :add_index, :code          # appended as [:add_index, :code]
 ```
 
 ## Internal field storage

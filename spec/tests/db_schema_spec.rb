@@ -17,7 +17,12 @@ describe Typero do
       expect(schema[5]).to eq([:tags, :string, { array: true, limit: 30}])
       expect(schema[6]).to eq([:eyes, :string, { default: 'blue', limit: 255, null: false}])
       expect(schema[7]).to eq([:age, :integer, { null: false}])
-      expect(schema.last).to eq([:db_rule!, :timestamps])
+      expect(schema.length).to eq(13)
+    end
+
+    it 'gets db_rules separately' do
+      db_rules = @rules.db_rules
+      expect(db_rules).to eq([[:timestamps]])
     end
   end
 end

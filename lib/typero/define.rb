@@ -132,7 +132,7 @@ module Typero
     # db :timestamps
     # db :add_index, :code -> t.add_index :code
     def db *args
-      @db_rules.push args.unshift(:db_rule!)
+      @db_rules.push args
     end
 
     # if method undefine, call set method

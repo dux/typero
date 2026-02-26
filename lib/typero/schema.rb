@@ -24,7 +24,6 @@ module Typero
     SCHEMA_STORE ||= {}
 
     attr_reader :klass
-    attr_reader :schema
     attr_reader :opts
 
     # accepts dsl block to define schema
@@ -145,6 +144,11 @@ module Typero
       errors.keys.length == 0
     end
 
+    # returns raw db rules like [:timestamps] or [:add_index, :code]
+    def db_rules
+      @schema.db_rules
+    end
+
     # returns field, db_type, db_opts
     def db_schema
       out = @schema.rules.inject([]) do |total, (field, opts)|
@@ -157,8 +161,6 @@ module Typero
 
         total << [field, type, opts]
       end
-
-      out += @schema.db_rules
 
       out
     end
