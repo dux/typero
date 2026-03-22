@@ -1,5 +1,5 @@
 class Typero::LabelType < Typero::Type
-  def set
+  def coerce
     value do |data|
       data
         .to_s

@@ -2,7 +2,7 @@ class Typero::IntegerType < Typero::Type
   opts :min, 'Minimum value'
   opts :max, 'Maximum value'
 
-  def set
+  def coerce
     value(&:to_i)
 
     error_for(:min_value_error, opts[:min], value) if opts[:min] && value < opts[:min]

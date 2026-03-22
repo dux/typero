@@ -6,7 +6,7 @@ class Typero::DatetimeType < Typero::DateType
 
   error :en, :invalid_datetime, 'is not a valid datetime'
 
-  def set
+  def coerce
     unless [Time, DateTime].include?(value.class)
       begin
         value { |data| DateTime.parse(data.to_s) }

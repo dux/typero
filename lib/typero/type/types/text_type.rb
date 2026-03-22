@@ -4,7 +4,7 @@ class Typero::TextType < Typero::StringType
   opts :min, 'Minimum string length'
   opts :max, 'Maximum string length'
 
-  def set
+  def coerce
     value(&:to_s)
     value(&:downcase) if opts[:downcase]
 

@@ -3,7 +3,7 @@ class Typero::StringType < Typero::Type
   opts :max, 'Maximum string length'
   opts :downcase, 'is the string in downcase?'
 
-  def set
+  def coerce
     value(&:to_s)
     value(&:downcase) if opts[:downcase]
 

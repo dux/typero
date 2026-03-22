@@ -6,7 +6,7 @@ class Typero::ImageType < Typero::Type
 
   opts :strict, 'Force image to have known extension (%s)' % FORMATS.join(', ')
 
-  def set
+  def coerce
     error_for(:image_not_starting_error) unless value =~ /^https?:\/\/./
 
     if opts[:strict]

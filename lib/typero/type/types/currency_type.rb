@@ -6,7 +6,7 @@ require_relative './float_type'
 
 class Typero::CurrencyType < Typero::FloatType
 
-  def set
+  def coerce
     value { |data| data.to_f.round(2) }
 
     error_for(:min_value_error, opts[:min], value) if opts[:min] && value < opts[:min]

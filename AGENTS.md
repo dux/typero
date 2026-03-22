@@ -26,7 +26,7 @@ lib/adapters/
 - `Typero` module is the public API (`Typero.schema`, `Typero.set`, `Typero.type`)
 - `Typero::Schema` wraps a `Typero::Define` instance and provides `validate`, `rules`, `db_schema`, `only`, `except`
 - `Typero::Define` processes the DSL block via `method_missing -> set`, stores results in `@rules` hash
-- `Typero::Type` is the abstract base; each concrete type (e.g., `Typero::EmailType`) overrides `set` and `db_schema`
+- `Typero::Type` is the abstract base; each concrete type overrides `coerce` and `db_schema`
 
 ### Type hierarchy
 
@@ -53,6 +53,38 @@ Typero::Type
   TimezoneType
   OibType            # Croatian ID number
 ```
+
+### Type class interface
+
+Each type subclass implements:
+- `coerce` - transform the value to the correct type and raise `TypeError` if invalid
+- `db_schema` - return `[db_type, opts]` for database column generation
+- `default` (optional) - override to provide a non-nil default for blank values
+
+Public interface (called externally):
+- `initialize(value, opts)` - store value and options
+- `get` - returns coerced value (calls `coerce` internally, handles nil/default)
+- `db_field` - wraps `db_schema` with required/default opts from schema
+
+### Schema validation flow
+
+`Schema#validate` delegates to focused private methods:
+- `strip_undefined_keys!` - remove keys not in schema (strict mode)
+- `resolve_opts` - dup opts and evaluate any Proc values
+- `apply_default` - set default if value is blank
+- `read_value` - read from object, normalizing string keys to symbols
+- `validate_array` - split, coerce each element, deduplicate, check counts
+- `validate_scalar` - check allowed values, coerce via type class, check required
+- `coerce_value` - resolve type class via `Type.load`, instantiate, call `get`
+
+### Schema definition flow
+
+`Define#set` delegates to focused private methods:
+- `parse_args` - extract opts hash from method arguments
+- `parse_field_name` - handle `?` suffix for optional fields, normalize required
+- `define_block_type` - handle `!` suffix for bulk type assignment
+- `resolve_type` - detect Array/Set/boolean/model types and normalize
+- `validate_opts` - check all opts are allowed for the given type
 
 ## Runtime dependencies
 
@@ -270,29 +302,6 @@ Fields are stored in `Typero::Define#@rules` as a `Hash<Symbol, Hash>`:
 
 Access via `schema.rules` which returns a duplicate of this hash.
 
-## Validation flow
-
-When `schema.validate(object)` is called:
-
-1. If `strict: true` and object is a Hash, delete keys not in schema
-2. For each field in rules:
-   a. Evaluate any Proc values in opts (via `object.instance_exec(&proc)`)
-   b. Apply default if value is blank and default exists
-   c. Read value from object (normalizes string keys to symbols for Hash)
-   d. For arrays: split strings by delimiter, coerce each element, deduplicate, check count constraints
-   e. For scalars: check allowed values whitelist, coerce via type class, check required
-   f. Write coerced value back to object (empty strings become nil)
-3. Return errors hash (empty = valid)
-
-### Type coercion (inside step 2d/2e)
-
-The type class is resolved from the `:type` symbol: `:email` -> `Typero::EmailType`. An instance is created with the value and opts, then `get` is called:
-
-- If value is nil: return `opts[:default]` or `type.default`
-- Otherwise: call `type.set` (subclass override that coerces and validates), check `:values` whitelist, return value
-
-If `set` raises `TypeError`, the error is captured and added to the errors hash.
-
 ## Error handling
 
 ### Error format
@@ -360,7 +369,7 @@ class Typero::SlugType < Typero::Type
   error :en, :invalid_slug, 'contains invalid characters'
 
   # coerce and validate the value (required override)
-  def set
+  def coerce
     sep = opts[:separator] || '-'
     value { |data| data.to_s.downcase.gsub(/[^\w#{sep}]/, '').gsub(/#{sep}+/, sep) }
     error_for(:invalid_slug) unless value =~ /^[\w#{sep}]+$/

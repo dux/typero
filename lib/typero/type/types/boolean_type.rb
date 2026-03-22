@@ -1,7 +1,7 @@
 class Typero::BooleanType < Typero::Type
   error :en, :unsupported_boolean, 'Unsupported boolean param value: %s'
 
-  def set
+  def coerce
     value do |_|
       bool = _.to_s
 

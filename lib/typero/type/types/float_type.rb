@@ -3,12 +3,11 @@ class Typero::FloatType < Typero::Type
   opts :max, 'Maximum value'
   opts :round, 'Round to (decimal spaces)'
 
-  def set
-    @value =
+  def coerce
     if opts[:round]
-      value.to_f.round(opts[:round])
+      value { |data| data.to_f.round(opts[:round]) }
     else
-      value.to_f
+      value { |data| data.to_f }
     end
 
     error_for(:min_value_error, opts[:min], value) if opts[:min] && value < opts[:min]
@@ -19,4 +18,3 @@ class Typero::FloatType < Typero::Type
     [:float, {}]
   end
 end
-

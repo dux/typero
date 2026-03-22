@@ -2,7 +2,7 @@
 # point = @object.class.xselect("ST_AsText(#{field}) as #{field}").where(id: @object.id).first[field.to_sym]
 
 class Typero::PointType < Typero::Type
-  def set
+  def coerce
     if value.include?('/@')
       # extract value from google maps link
       point = value.split('/@', 2).last.split(',')

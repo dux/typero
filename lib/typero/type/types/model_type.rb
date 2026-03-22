@@ -1,5 +1,5 @@
 class Typero::ModelType < Typero::Type
-  def set
+  def coerce
     value(&:to_h)
 
     errors = {}

@@ -1,7 +1,7 @@
 class Typero::TimezoneType < Typero::Type
   error :en, :invalid_time_zone, 'Invalid time zone'
 
-  def set
+  def coerce
     TZInfo::Timezone.get(value)
   rescue TZInfo::InvalidTimezoneIdentifier
     error_for :invalid_time_zone

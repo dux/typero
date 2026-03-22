@@ -2,7 +2,7 @@ class Typero::EmailType < Typero::Type
   error :en, :not_8_chars_error, 'is not having at least 8 characters'
   error :en, :missing_monkey_error, 'is missing @'
 
-  def set
+  def coerce
     value do |email|
       email.downcase.gsub(/\s+/,'+')
     end

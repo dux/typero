@@ -1,7 +1,7 @@
 class Typero::HashType < Typero::Type
   error :en, :not_hash_type_error, 'value is not hash type'
 
-  def set
+  def coerce
     if value.is_a?(String) && value[0,1] == '{'
       @value = JSON.parse(value)
     end

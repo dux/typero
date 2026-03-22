@@ -1,7 +1,7 @@
 class Typero::OibType < Typero::Type
   error :en, :not_an_oib_error, 'not in an OIB format'
 
-  def set
+  def coerce
     value do |data|
       check?(data) ? data.to_s : error_for(:not_an_oib_error)
     end

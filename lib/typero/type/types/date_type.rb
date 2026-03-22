@@ -6,7 +6,7 @@ class Typero::DateType < Typero::Type
   error :en, :min_date, 'Minimal allowed date is %s'
   error :en, :max_date, 'Maximal allowed date is %s'
 
-  def set
+  def coerce
     unless [Date].include?(value.class)
       begin
         value { |data| DateTime.parse(data.to_s) }

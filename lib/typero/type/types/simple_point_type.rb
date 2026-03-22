@@ -1,7 +1,7 @@
 # Same as point, but we keep data as a float in Array
 
 class Typero::SimplePointType < Typero::Type
-  def set
+  def coerce
     if value.include?('/@')
       # extract value from google maps link
       point = value.split('/@', 2).last.split(',')[0,2]

@@ -1,21 +1,5 @@
-# Base class for schema validation, this loads and defined schema.
-# Accepts set of params and returns hash of parsed rules
-
-# module Typero
-#   class Loader
-#     def timestamps
-#       created_at Time
-#       created_by_ref
-#     end
-#   end
-# end
-
-# class Task < ApplicationModel
-#   schema do
-#     name           # string type
-#     timestamps     # metod defined -> call
-#   end
-# end
+# Base class for schema definition DSL.
+# Accepts a block of field declarations and returns hash of parsed rules.
 
 require 'set'
 require 'json'
@@ -40,102 +24,32 @@ module Typero
     def set field, *args, &block
       raise "Field name not given (Typero)" unless field
 
-      if args.first.is_a?(Hash)
-        opts = args.first || {}
-      else
-        opts = args[1] || {}
-        opts[:type] ||= args[0]
-      end
-
-      opts[:type] = :string if opts[:type].nil?
-
+      opts  = parse_args args
       field = field.to_s
 
+      # bang suffix defines block type for all fields in the block
       if field.include?('!')
-        if block
-          field = field.sub('!', '')
-          @block_type = field.to_sym
-          instance_exec &block
-          @block_type = nil
-          return
-        else
-          raise ArgumentError.new 'If you use ! you have to provide a block'
-        end
+        return define_block_type(field, &block)
       end
 
-      # name? - opional name
-      if field.include?('?')
-        field = field.sub('?', '')
-        opts[:required] = false
-      end
+      # question mark suffix makes field optional
+      field = parse_field_name field, opts
 
-      opts[:required] = opts.delete(:req) unless opts[:req].nil?
-      opts[:required] = true if opts[:required].nil?
+      resolve_type opts
 
-      # bare Array class -> array of strings
-      if opts[:type] == Array
-        opts[:type]  = :string
-        opts[:array] = true
-      end
-
-      # bare Set class -> array of strings
-      if opts[:type] == Set
-        opts[:type]  = :string
-        opts[:array] = true
-      end
-
-      # array that allows duplicates
-      if opts[:type].is_a?(Array)
-        opts[:type]  = opts[:type].first
-        opts[:array] = true
-      end
-
-      # no duplicates array
-      if opts[:type].is_a?(Set)
-        opts[:type]  = opts[:type].to_a.first
-        opts[:array] = true
-      end
-
-      opts[:type] = @block_type if @block_type
-
-      # Boolean
-      if opts[:type].is_a?(TrueClass) || opts[:type] == :true
-        opts[:required] = false
-        opts[:default]  = true
-        opts[:type]     = :boolean
-      elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false || opts[:type] == :boolean
-        opts[:required] = false
-        opts[:default]  = false if opts[:default].nil?
-        opts[:type]     = :boolean
-      end
-
-      # model / schema
-      if opts[:type].is_a?(Typero::Schema)
-        opts[:model] = opts.delete(:type)
-      end
-      opts[:model] = opts.delete(:schema) if opts[:schema]
-      opts[:type]  = :model if opts[:model]
-
+      # inline block defines a nested model schema
       if block_given?
         opts[:type]  = :model
         opts[:model] = Typero.schema &block
       end
 
       opts[:type] = opts[:type].to_s.downcase.to_sym
-
       opts[:description] = opts.delete(:desc) unless opts[:desc].nil?
 
-      # check allowed params, all optional should go in meta
-      type = Typero::Type.load opts[:type]
-      opts.keys.each do |key|
-        type.allowed_opt?(key) {|err| raise ArgumentError, err }
-      end
+      validate_opts opts
 
       field = field.to_sym
-
-      if opts.delete(:index)
-        db :add_index, field
-      end
+      db(:add_index, field) if opts.delete(:index)
 
       @rules[field] = opts
     end
@@ -147,11 +61,95 @@ module Typero
       @db_rules.push args
     end
 
-    # if method undefine, call set method
+    # if method undefined, call set method
     # age Integer -> set :age, type: :integer
-    # email Array[:emails] -> set :emails, Array[:email]
     def method_missing field, *args, &block
       set field, *args, &block
+    end
+
+    # --- argument parsing ---
+
+    def parse_args args
+      if args.first.is_a?(Hash)
+        opts = args.first || {}
+      else
+        opts = args[1] || {}
+        opts[:type] ||= args[0]
+      end
+
+      opts[:type] = :string if opts[:type].nil?
+      opts
+    end
+
+    def parse_field_name field, opts
+      if field.include?('?')
+        field = field.sub('?', '')
+        opts[:required] = false
+      end
+
+      opts[:required] = opts.delete(:req) unless opts[:req].nil?
+      opts[:required] = true if opts[:required].nil?
+
+      field
+    end
+
+    # --- type resolution ---
+
+    def define_block_type field, &block
+      raise ArgumentError, 'If you use ! you have to provide a block' unless block
+
+      field = field.sub('!', '')
+      @block_type = field.to_sym
+      instance_exec &block
+      @block_type = nil
+    end
+
+    def resolve_type opts
+      # bare Array or Set class -> array of strings
+      if opts[:type] == Array || opts[:type] == Set
+        opts[:type]  = :string
+        opts[:array] = true
+      end
+
+      # Array[:type] -> typed array
+      if opts[:type].is_a?(Array)
+        opts[:type]  = opts[:type].first
+        opts[:array] = true
+      end
+
+      # Set[:type] -> typed array (no duplicates)
+      if opts[:type].is_a?(Set)
+        opts[:type]  = opts[:type].to_a.first
+        opts[:array] = true
+      end
+
+      # block type override (integer! do ... end)
+      opts[:type] = @block_type if @block_type
+
+      # boolean variants
+      if opts[:type].is_a?(TrueClass) || opts[:type] == :true
+        opts[:required] = false
+        opts[:default]  = true
+        opts[:type]     = :boolean
+      elsif opts[:type].is_a?(FalseClass) || opts[:type] == :false || opts[:type] == :boolean
+        opts[:required] = false
+        opts[:default]  = false if opts[:default].nil?
+        opts[:type]     = :boolean
+      end
+
+      # model / schema reference
+      if opts[:type].is_a?(Typero::Schema)
+        opts[:model] = opts.delete(:type)
+      end
+      opts[:model] = opts.delete(:schema) if opts[:schema]
+      opts[:type]  = :model if opts[:model]
+    end
+
+    def validate_opts opts
+      type = Typero::Type.load opts[:type]
+      opts.keys.each do |key|
+        type.allowed_opt?(key) {|err| raise ArgumentError, err }
+      end
     end
   end
 end
