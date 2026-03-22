@@ -22,7 +22,7 @@ class Typero::OibType < Typero::Type
     return false unless oib.match(/^[0-9]{11}$/)
 
     control_sum = (0..9).inject(10) do |middle, position|
-      middle += oib.at(position).to_i
+      middle += oib[position].to_i
       middle %= 10
       middle = 10 if middle == 0
       middle *= 2
@@ -32,7 +32,7 @@ class Typero::OibType < Typero::Type
     control_sum = 11 - control_sum
     control_sum = 0 if control_sum == 10
 
-    return control_sum == oib.at(10).to_i
+    return control_sum == oib[10].to_i
   end
 
 end

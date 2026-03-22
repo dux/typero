@@ -72,6 +72,18 @@ module Typero
       opts[:required] = opts.delete(:req) unless opts[:req].nil?
       opts[:required] = true if opts[:required].nil?
 
+      # bare Array class -> array of strings
+      if opts[:type] == Array
+        opts[:type]  = :string
+        opts[:array] = true
+      end
+
+      # bare Set class -> array of strings
+      if opts[:type] == Set
+        opts[:type]  = :string
+        opts[:array] = true
+      end
+
       # array that allows duplicates
       if opts[:type].is_a?(Array)
         opts[:type]  = opts[:type].first
