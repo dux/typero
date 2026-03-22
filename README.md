@@ -211,49 +211,154 @@ end
 
 ### Built in types
 
-* **boolean** - [Typero::BooleanType](https://github.com/dux/typero/blob/master/lib/typero/type/types/boolean_type.rb)
-* **currency** - [Typero::CurrencyType](https://github.com/dux/typero/blob/master/lib/typero/type/types/currency_type.rb)
-* **date** - [Typero::DateType](https://github.com/dux/typero/blob/master/lib/typero/type/types/date_type.rb)
-  * `min: Smallest date-time allowed`
-  * `max: Maximal date-time allowed`
-* **datetime** - [Typero::DatetimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/datetime_type.rb)
-  * `min: Smallest date allowed`
-  * `max: Maximal date allowed`
-* **email** - [Typero::EmailType](https://github.com/dux/typero/blob/master/lib/typero/type/types/email_type.rb)
-* **float** - [Typero::FloatType](https://github.com/dux/typero/blob/master/lib/typero/type/types/float_type.rb)
-  * `min: Minimum value`
-  * `max: Maximum value`
-  * `round: Round to (decimal spaces)`
-* **hash** - [Typero::HashType](https://github.com/dux/typero/blob/master/lib/typero/type/types/hash_type.rb)
-* **image** - [Typero::ImageType](https://github.com/dux/typero/blob/master/lib/typero/type/types/image_type.rb)
-  * `strict: Force image to have known extension (jpg, jpeg, gif, png, svg, webp)`
-* **integer** - [Typero::IntegerType](https://github.com/dux/typero/blob/master/lib/typero/type/types/integer_type.rb)
-  * `min: Minimum value`
-  * `max: Maximum value`
-* **label** - [Typero::LabelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/label_type.rb)
-* **locale** - [Typero::LocaleType](https://github.com/dux/typero/blob/master/lib/typero/type/types/locale_type.rb)
-* **model** - [Typero::ModelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/model_type.rb)
-* **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib_type.rb)
-* **phone** - [Typero::PhoneType](https://github.com/dux/typero/blob/master/lib/typero/type/types/phone_type.rb) - normalizes formatting to spaces, validates digits/+/spaces, min 5 digits
-* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point_type.rb) - PostGIS SRID=4326, extracts coords from Google/OSM/Apple/Waze/Bing map URLs
-* **simple_point** - [Typero::SimplePointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/simple_point_type.rb) - float array [lat, lon], same URL extraction as point
-* **slug** - [Typero::SlugType](https://github.com/dux/typero/blob/master/lib/typero/type/types/slug_type.rb) - URL-safe slug, lowercase, strips special chars
-  * `max: Maximum slug length`
-* **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string_type.rb)
-  * `min: Minimum string length`
-  * `max: Maximum string length`
-  * `downcase: is the string in downcase?`
-* **text** - [Typero::TextType](https://github.com/dux/typero/blob/master/lib/typero/type/types/text_type.rb)
-  * `min: Minimum string length`
-  * `max: Maximum string length`
-* **time** - [Typero::TimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/time_type.rb)
-* **timezone** - [Typero::TimezoneType](https://github.com/dux/typero/blob/master/lib/typero/type/types/timezone_type.rb)
-* **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url_type.rb)
-* **uuid** - [Typero::UuidType](https://github.com/dux/typero/blob/master/lib/typero/type/types/uuid_type.rb) - validates and downcases UUID format
+* #### boolean
+  Converts common truthy/falsy strings to true or false.
+  ```ruby
+  Typero.set :boolean, 'on'   # => true
+  Typero.set :boolean, '0'    # => false
+  ```
+
+* #### currency
+  Rounds float to 2 decimal places for monetary values.
+  ```ruby
+  Typero.set :currency, 123.456  # => 123.46
+  ```
+
+* #### date
+  Parses date strings and strips time component.
+  ```ruby
+  Typero.set :date, '2024-12-25 14:30'  # => Date(2024-12-25)
+  ```
+  Opts: `min`, `max`
+
+* #### datetime / time
+  Parses datetime strings, preserves time component.
+  ```ruby
+  Typero.set :datetime, '2024-12-25 14:30'  # => Time(2024-12-25 14:30:00)
+  ```
+  Opts: `min`, `max`
+
+* #### email
+  Downcases and normalizes email addresses, validates @ presence and min length.
+  ```ruby
+  Typero.set :email, 'DUX@Net.hr'  # => "dux@net.hr"
+  ```
+
+* #### float
+  Converts to float with optional rounding.
+  ```ruby
+  Typero.set :float, '3.14159', round: 2  # => 3.14
+  ```
+  Opts: `min`, `max`, `round`
+
+* #### hash
+  Parses JSON strings to hash, validates hash type.
+  ```ruby
+  Typero.set :hash, '{"a":1}'  # => {"a"=>1}
+  ```
+  Opts: `allow`
+
+* #### image
+  Validates image URLs, optionally checks extension.
+  ```ruby
+  Typero.set :image, 'https://example.com/photo.jpg'  # => "https://example.com/photo.jpg"
+  ```
+  Opts: `strict`
+
+* #### integer
+  Converts to integer with min/max validation.
+  ```ruby
+  Typero.set :integer, '42'  # => 42
+  ```
+  Opts: `min`, `max`
+
+* #### label
+  Creates lowercase alphanumeric labels with hyphens, max 30 chars.
+  ```ruby
+  Typero.set :label, 'My Tag Name!'  # => "my-tag-name"
+  ```
+
+* #### locale
+  Validates locale format (xx or xx-xx).
+  ```ruby
+  Typero.set :locale, 'en-US'  # => "en-US"
+  ```
+
+* #### model
+  Validates nested hash against another schema.
+  ```ruby
+  Typero.set :model, { name: 'Dux' }, schema: UserSchema
+  ```
+
+* #### oib
+  Validates Croatian personal ID number (ISO 7064 MOD 11,10 checksum).
+  ```ruby
+  Typero.set :oib, '12345678901'  # => "12345678901" (if valid checksum)
+  ```
+
+* #### phone
+  Normalizes phone formatting to spaces, validates min 5 digits.
+  ```ruby
+  Typero.set :phone, '+1 (555) 123-4567'  # => "+1 555 123 4567"
+  ```
+
+* #### point
+  PostGIS geography point (SRID=4326), extracts coords from Google/OSM/Apple/Waze/Bing map URLs.
+  ```ruby
+  Typero.set :point, 'https://maps.google.com/maps?q=45.815,15.9819'
+  # => "SRID=4326;POINT(15.9819 45.815)"
+  ```
+
+* #### simple_point
+  Float array [lat, lon], extracts coords from map URLs, returns formatted string.
+  ```ruby
+  Typero.set :simple_point, 'https://maps.google.com/maps?q=45.815,15.9819'
+  # => "45.815, 15.9819"
+  ```
+
+* #### slug
+  URL-safe slug, lowercase, replaces special chars with hyphens.
+  ```ruby
+  Typero.set :slug, 'My Blog Post!'  # => "my-blog-post"
+  ```
+  Opts: `max`
+
+* #### string
+  Basic string with length validation, max defaults to 255.
+  ```ruby
+  Typero.set :string, 'Hello World', max: 10  # => "Hello Worl"
+  ```
+  Opts: `min`, `max`, `downcase`
+
+* #### text
+  Unlimited string length for long content.
+  ```ruby
+  Typero.set :text, 'Long article content...'  # => "Long article content..."
+  ```
+  Opts: `min`, `max`
+
+* #### timezone
+  Validates timezone string via TZInfo.
+  ```ruby
+  Typero.set :timezone, 'Europe/Zagreb'  # => "Europe/Zagreb"
+  ```
+
+* #### url
+  Validates http or https URL prefix.
+  ```ruby
+  Typero.set :url, 'example.com/page'  # raises error (missing http)
+  ```
+
+* #### uuid
+  Validates and downcases UUID format (8-4-4-4-12).
+  ```ruby
+  Typero.set :uuid, 'A1B2C3D4-E5F6-7890-ABCD-EF1234567890'
+  # => "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  ```
 
 ### Create custom type
 
-Each type implements two methods: `coerce` (transform and validate the value) and `db_schema` (return database column definition).
+Each type implements `coerce` (transform and validate the value) and `db_schema` (return database column definition). Optionally override `input_value` to return a different format than the internal value.
 
 ```ruby
 class Typero::LabelType < Typero::Type
@@ -274,6 +379,26 @@ class Typero::LabelType < Typero::Type
   # define database column type
   def db_schema
     [:string, { limit: 30 }]
+  end
+end
+```
+
+#### Override input_value
+
+Use `input_value` when internal storage differs from output format:
+
+```ruby
+class Typero::SimplePointType < Typero::Type
+  def coerce
+    value { extract_coords(value) }  # stores array [lat, lon]
+  end
+
+  def input_value
+    value.join(', ')  # returns "lat, lon" string
+  end
+
+  def db_schema
+    [:float, { array: true }]  # DB stores array
   end
 end
 ```

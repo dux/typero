@@ -99,6 +99,10 @@ module Typero
       end
     end
 
+    def input_value
+      value
+    end
+
     def get
       if value.nil?
         opts[:default].nil? ? default : opts[:default]
@@ -109,7 +113,7 @@ module Typero
           error_for(:not_in_range, opts[:values].join(', '))
         end
 
-        value
+        input_value
       end
     end
 

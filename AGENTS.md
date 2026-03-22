@@ -64,10 +64,11 @@ Each type subclass implements:
 - `coerce` - transform the value to the correct type and raise `TypeError` if invalid
 - `db_schema` - return `[db_type, opts]` for database column generation
 - `default` (optional) - override to provide a non-nil default for blank values
+- `input_value` (optional) - override to return a different format than internal `value` (e.g., string instead of array)
 
 Public interface (called externally):
 - `initialize(value, opts)` - store value and options
-- `get` - returns coerced value (calls `coerce` internally, handles nil/default)
+- `get` - returns coerced value (calls `coerce` internally, handles nil/default, returns `input_value`)
 - `db_field` - wraps `db_schema` with required/default opts from schema
 
 ### Schema validation flow

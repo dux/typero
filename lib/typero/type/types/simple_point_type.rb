@@ -13,6 +13,10 @@ class Typero::SimplePointType < Typero::Type
     end
   end
 
+  def input_value
+    value.join(', ')
+  end
+
   def db_schema
     [:float, { array: true }]
   end
