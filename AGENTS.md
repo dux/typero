@@ -12,6 +12,7 @@ lib/typero/
   define.rb                      # Typero::Define - DSL processor for schema blocks
   type/
     type.rb                      # Typero::Type - abstract base class for all types
+    geo_extract.rb               # Typero::GeoExtract - shared coord extraction from map URLs
     types/
       string_type.rb             # Each file is one type
       email_type.rb
@@ -47,8 +48,11 @@ Typero::Type
   HashType
   ImageType
   ModelType          # nested schema validation
-  PointType          # PostGIS geography
-  SimplePointType    # float array point
+  PhoneType          # phone number validation
+  PointType          # PostGIS geography (includes GeoExtract)
+  SimplePointType    # float array point (includes GeoExtract)
+  SlugType           # URL-safe slugs
+  UuidType           # UUID format validation
   LocaleType
   TimezoneType
   OibType            # Croatian ID number
@@ -342,8 +346,11 @@ Locale detected from: `Lux.current.locale` > `I18n.locale` > `:en`
 | hash | HashType | allow | :jsonb | parses JSON strings via JSON.parse |
 | image | ImageType | strict | :string | checks http prefix, strips query params for ext check |
 | model | ModelType | model/schema | :jsonb | nested schema validation |
-| point | PointType | | :geography | PostGIS SRID=4326 format |
-| simple_point | SimplePointType | | :float (array) | float array [lat, lng] |
+| phone | PhoneType | | :string (limit: 50) | normalizes parens/dashes to spaces, min 5 digits |
+| point | PointType | | :geography | PostGIS SRID=4326, extracts from Google/OSM/Apple/Waze/Bing URLs |
+| simple_point | SimplePointType | | :float (array) | float array [lat, lon], same URL extraction as point |
+| slug | SlugType | max | :string (limit: 255) | URL-safe slug, lowercase, strips special chars |
+| uuid | UuidType | | :string (limit: 36) | validates 8-4-4-4-12 hex format, downcases |
 | locale | LocaleType | | :string (limit: 5) | validates xx or xx-xx format |
 | timezone | TimezoneType | | :string (limit: 50) | validates via TZInfo |
 | oib | OibType | | :string (limit: 11) | Croatian ID, ISO 7064 MOD 11,10 checksum, stored as string |
@@ -393,6 +400,7 @@ Use in schema: `slug :slug, separator: '-'`
 | lib/typero/schema.rb | `Typero::Schema` - validation, rules, only/except, db_schema |
 | lib/typero/define.rb | `Typero::Define` - DSL block processor |
 | lib/typero/type/type.rb | `Typero::Type` - abstract base, error system, opts system |
+| lib/typero/type/geo_extract.rb | `Typero::GeoExtract` - shared coord extraction from map URLs |
 | lib/typero/type/types/*.rb | One file per type |
 | lib/adapters/sequel.rb | Sequel ORM plugin |
 | spec/spec_helper.rb | Test setup, requires Sequel inflector |

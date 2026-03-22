@@ -5,6 +5,7 @@ require_relative 'typero/typero'
 require_relative 'typero/schema'
 require_relative 'typero/define'
 require_relative 'typero/type/type'
+require_relative 'typero/type/geo_extract'
 
 # checker types
 Dir['%s/typero/type/types/*.rb' % __dir__].each do |file|

@@ -234,8 +234,11 @@ end
 * **locale** - [Typero::LocaleType](https://github.com/dux/typero/blob/master/lib/typero/type/types/locale_type.rb)
 * **model** - [Typero::ModelType](https://github.com/dux/typero/blob/master/lib/typero/type/types/model_type.rb)
 * **oib** - [Typero::OibType](https://github.com/dux/typero/blob/master/lib/typero/type/types/oib_type.rb)
-* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point_type.rb)
-* **simple_point** - [Typero::SimplePointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/simple_point_type.rb)
+* **phone** - [Typero::PhoneType](https://github.com/dux/typero/blob/master/lib/typero/type/types/phone_type.rb) - normalizes formatting to spaces, validates digits/+/spaces, min 5 digits
+* **point** - [Typero::PointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/point_type.rb) - PostGIS SRID=4326, extracts coords from Google/OSM/Apple/Waze/Bing map URLs
+* **simple_point** - [Typero::SimplePointType](https://github.com/dux/typero/blob/master/lib/typero/type/types/simple_point_type.rb) - float array [lat, lon], same URL extraction as point
+* **slug** - [Typero::SlugType](https://github.com/dux/typero/blob/master/lib/typero/type/types/slug_type.rb) - URL-safe slug, lowercase, strips special chars
+  * `max: Maximum slug length`
 * **string** - [Typero::StringType](https://github.com/dux/typero/blob/master/lib/typero/type/types/string_type.rb)
   * `min: Minimum string length`
   * `max: Maximum string length`
@@ -246,6 +249,7 @@ end
 * **time** - [Typero::TimeType](https://github.com/dux/typero/blob/master/lib/typero/type/types/time_type.rb)
 * **timezone** - [Typero::TimezoneType](https://github.com/dux/typero/blob/master/lib/typero/type/types/timezone_type.rb)
 * **url** - [Typero::UrlType](https://github.com/dux/typero/blob/master/lib/typero/type/types/url_type.rb)
+* **uuid** - [Typero::UuidType](https://github.com/dux/typero/blob/master/lib/typero/type/types/uuid_type.rb) - validates and downcases UUID format
 
 ### Create custom type
 
@@ -305,6 +309,9 @@ ERRORS = {
     not_an_oib_error: 'not in an OIB format',
     invalid_time_zone: 'Invalid time zone',
     url_not_starting_error: 'URL is not starting with http or https',
+    invalid_phone: 'is not a valid phone number',
+    invalid_uuid: 'is not a valid UUID',
+    invalid_slug: 'contains invalid characters',
   }
 }
 ```

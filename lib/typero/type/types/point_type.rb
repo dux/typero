@@ -2,20 +2,17 @@
 # point = @object.class.xselect("ST_AsText(#{field}) as #{field}").where(id: @object.id).first[field.to_sym]
 
 class Typero::PointType < Typero::Type
+  include Typero::GeoExtract
+
   def coerce
-    if value.include?('/@')
-      # extract value from google maps link
-      point = value.split('/@', 2).last.split(',')
-      value { [point[0], point[1]].join(',') }
-    end
+    if value.is_a?(String) && !value.include?('POINT')
+      coords = extract_coords(value)
 
-    if !value.include?('POINT') && value.include?(',')
-      point = value.sub(/\s*,\s*/, ' ')
-      value { 'SRID=4326;POINT(%s)' % point }
-    end
-
-    if value && value.include?(',') && value !~ /^SRID=4326;POINT\(/
-      error_for(:unallowed_characters_error)
+      if coords
+        value { 'SRID=4326;POINT(%s %s)' % [coords[0], coords[1]] }
+      else
+        error_for(:unallowed_characters_error)
+      end
     end
   end
 
@@ -23,4 +20,3 @@ class Typero::PointType < Typero::Type
     [:geography, {}]
   end
 end
-
