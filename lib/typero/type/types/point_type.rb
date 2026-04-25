@@ -9,7 +9,7 @@ class Typero::PointType < Typero::Type
       coords = extract_coords(value)
 
       if coords
-        value { 'SRID=4326;POINT(%s %s)' % [coords[0], coords[1]] }
+        value { 'SRID=4326;POINT(%s %s)' % [coords[1], coords[0]] }
       else
         error_for(:unallowed_characters_error)
       end

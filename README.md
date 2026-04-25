@@ -218,6 +218,12 @@ end
   Typero.set :boolean, '0'    # => false
   ```
 
+* #### country
+  Uppercases and validates ISO 3166-1 alpha-2 country code (2 letters).
+  ```ruby
+  Typero.set :country, 'hr'  # => "HR"
+  ```
+
 * #### currency
   Rounds float to 2 decimal places for monetary values.
   ```ruby
@@ -265,6 +271,12 @@ end
   ```
   Opts: `strict`
 
+* #### iban
+  Validates IBAN (International Bank Account Number) with MOD-97 checksum.
+  ```ruby
+  Typero.set :iban, 'GB29 NWBK 6016 1331 9268 19'  # => "GB29NWBK60161331926819"
+  ```
+
 * #### integer
   Converts to integer with min/max validation.
   ```ruby
@@ -310,10 +322,10 @@ end
   ```
 
 * #### simple_point
-  Float array [lat, lon], extracts coords from map URLs, returns formatted string.
+  Float array [lat, lon], extracts coords from map URLs.
   ```ruby
   Typero.set :simple_point, 'https://maps.google.com/maps?q=45.815,15.9819'
-  # => "45.815, 15.9819"
+  # => [45.815, 15.9819]
   ```
 
 * #### slug
@@ -355,6 +367,39 @@ end
   Typero.set :uuid, 'A1B2C3D4-E5F6-7890-ABCD-EF1234567890'
   # => "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   ```
+
+### Instance schema accessor (Sequel)
+
+Model instances get a `schema` method returning a `Typero::SchemaAccessor` for per-field typed access.
+
+```ruby
+mp = MapPoint.last
+
+# get schema rules for a field
+mp.schema(:location)                              # => { type: :simple_point, required: false, ... }
+
+# read coerced value for a field
+mp.schema.get(:location)                          # => [44.39, 8.96]
+
+# read as Type object (advanced)
+mp.schema[:location].db_value                     # => Sequel.pg_array([44.39, 8.96], :float)
+mp.schema[:location].to_s                         # => "44.391598, 8.960724"
+
+# coerce and store a value (coercion only, no validation)
+mp.schema.set(:location, "44.39, 8.96")
+
+# validate a single field - raises TypeError if invalid
+mp.schema.validate(:email)
+
+# validate a single field with block - captures error instead of raising
+mp.schema.validate(:email) { |err| puts err }
+
+# validate all fields - raises TypeError on first error
+mp.schema.validate
+
+# validate all fields with block - yields each error
+mp.schema.validate { |field, err| puts "#{field}: #{err}" }
+```
 
 ### Create custom type
 

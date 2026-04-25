@@ -4,7 +4,7 @@ class Typero::EmailType < Typero::Type
 
   def coerce
     value do |email|
-      email.downcase.gsub(/\s+/,'+')
+      email.downcase.gsub(/\s+/,'')
     end
 
     error_for(:not_8_chars_error) unless value.to_s.length > 7

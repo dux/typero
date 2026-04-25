@@ -176,7 +176,7 @@ module Typero
     def coerce_value field, value, opts
       klass = Typero::Type.load(opts[:type])
       check = klass.new value, opts
-      check.get
+      check.db_value
     rescue TypeError => e
       if e.message[0] == '{'
         JSON.parse(e.message).each do |key, msg|

@@ -3,6 +3,7 @@
 # base libs
 require_relative 'typero/typero'
 require_relative 'typero/schema'
+require_relative 'typero/schema_accessor'
 require_relative 'typero/define'
 require_relative 'typero/type/type'
 require_relative 'typero/type/geo_extract'

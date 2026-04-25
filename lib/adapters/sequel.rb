@@ -16,6 +16,14 @@ module Sequel::Plugins::Typero
   end
 
   module InstanceMethods
+    # returns SchemaAccessor or field rules hash
+    # mp.schema                -> SchemaAccessor
+    # mp.schema(:name)         -> { type: :string, required: true }
+    def schema field = nil
+      accessor = Typero::SchemaAccessor.new(self)
+      field ? accessor.rules(field) : accessor
+    end
+
     # calling typero! on any object will validate all fields
     def validate
       super

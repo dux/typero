@@ -8,7 +8,7 @@ class Typero::TimezoneType < Typero::Type
   end
 
   def db_schema
-    [:string, { length: 50 }]
+    [:string, { limit: 50 }]
   end
 
 end

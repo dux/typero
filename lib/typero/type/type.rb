@@ -25,8 +25,10 @@ module Typero
       :delimiter,
       :duplicates,
       :index,
+      :max,
       :max_count,
       :meta,
+      :min,
       :min_count,
       :model,
       :name,
@@ -91,6 +93,7 @@ module Typero
       @block = block
     end
 
+    # raw value, one should use get
     def value &block
       if block_given?
         @value = block.call @value
@@ -99,10 +102,7 @@ module Typero
       end
     end
 
-    def input_value
-      value
-    end
-
+    # default get interface
     def get
       if value.nil?
         opts[:default].nil? ? default : opts[:default]
@@ -117,6 +117,11 @@ module Typero
       end
     end
 
+    # internal usage
+    def coerce
+    end
+    alias :set :coerce
+
     def default
       nil
     end
@@ -128,6 +133,26 @@ module Typero
       out[1][:null]      = false if !opts[:array] && opts[:required]
       out
     end
+
+    # value suitable for DB storage, override in types that need special wrapping (e.g. pg_array)
+    def db_value
+      get
+    end
+
+    # coerce value without validation - swallows TypeError from constraint checks
+    def coerce_value
+      return nil if value.nil?
+      begin
+        coerce
+      rescue TypeError
+      end
+      value
+    end
+
+    def input_value
+      value
+    end
+    alias :to_s :input_value
 
     private
 

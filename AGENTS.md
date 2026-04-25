@@ -39,6 +39,7 @@ Typero::Type
   FloatType
     CurrencyType
   BooleanType
+  CountryType
   EmailType
   UrlType
   LabelType
@@ -46,6 +47,7 @@ Typero::Type
     DatetimeType
       TimeType
   HashType
+  IbanType
   ImageType
   ModelType          # nested schema validation
   PhoneType          # phone number validation
@@ -69,6 +71,10 @@ Each type subclass implements:
 Public interface (called externally):
 - `initialize(value, opts)` - store value and options
 - `get` - returns coerced value (calls `coerce` internally, handles nil/default, returns `input_value`)
+- `db_value` - value suitable for DB storage (defaults to `get`, override for special wrapping like `pg_array`)
+- `coerce_value` - coerce only, no validation (swallows TypeError from constraint checks). Returns coerced value or nil.
+- `input_value` / `to_s` - human-readable string representation of the value
+- `set` - alias for `coerce`
 - `db_field` - wraps `db_schema` with required/default opts from schema
 
 ### Schema validation flow
@@ -80,7 +86,7 @@ Public interface (called externally):
 - `read_value` - read from object, normalizing string keys to symbols
 - `validate_array` - split, coerce each element, deduplicate, check counts
 - `validate_scalar` - check allowed values, coerce via type class, check required
-- `coerce_value` - resolve type class via `Type.load`, instantiate, call `get`
+- `coerce_value` - resolve type class via `Type.load`, instantiate, call `db_value`
 
 ### Schema definition flow
 
@@ -338,6 +344,7 @@ Locale detected from: `Lux.current.locale` > `I18n.locale` > `:en`
 | float | FloatType | min, max, round | :float | |
 | currency | CurrencyType | min, max | :decimal (8,2) | always rounds to 2 decimals, supports min/max |
 | boolean | BooleanType | | :boolean | truthy: true/1/on, falsy: false/0/off |
+| country | CountryType | | :string (limit: 2) | ISO 3166-1 alpha-2, uppercased |
 | email | EmailType | | :string (limit: 120) | downcases, checks @ and length |
 | url | UrlType | | :string | validates http:// or https:// prefix |
 | label | LabelType | | :string (limit: 30) | slug format: lowercase, alphanumeric + hyphens |
@@ -345,11 +352,12 @@ Locale detected from: `Lux.current.locale` > `I18n.locale` > `:en`
 | datetime | DatetimeType | min, max | :timestamp | preserves time, rescues invalid input |
 | time | TimeType | min, max | :timestamp | alias for datetime |
 | hash | HashType | allow | :jsonb | parses JSON strings via JSON.parse |
+| iban | IbanType | | :string (limit: 34) | IBAN validation with MOD-97 checksum |
 | image | ImageType | strict | :string | checks http prefix, strips query params for ext check |
 | model | ModelType | model/schema | :jsonb | nested schema validation |
 | phone | PhoneType | | :string (limit: 50) | normalizes parens/dashes to spaces, min 5 digits |
 | point | PointType | | :geography | PostGIS SRID=4326, extracts from Google/OSM/Apple/Waze/Bing URLs |
-| simple_point | SimplePointType | | :float (array) | float array [lat, lon], same URL extraction as point |
+| simple_point | SimplePointType | | :float (array) | float array [lat, lon], same URL extraction as point, `db_value` wraps with `pg_array` |
 | slug | SlugType | max | :string (limit: 255) | URL-safe slug, lowercase, strips special chars |
 | uuid | UuidType | | :string (limit: 36) | validates 8-4-4-4-12 hex format, downcases |
 | locale | LocaleType | | :string (limit: 5) | validates xx or xx-xx format |
@@ -362,9 +370,36 @@ Loaded automatically when `Sequel` is defined. Activate with `Sequel::Model.plug
 
 Adds:
 - `schema` class method that wraps `Typero.schema` with `type: :model` and auto-derives name from model class
+- `schema` instance method that returns a `Typero::SchemaAccessor` for per-field typed access
 - `validate` instance method that runs Typero validation in Sequel's validation lifecycle
 - Database-level `:unique` checks (case-insensitive SQL query on column change)
 - `:protected` field checks (prevents overwriting after initial creation)
+
+### SchemaAccessor (instance-level)
+
+`model.schema` returns a `Typero::SchemaAccessor`. Methods:
+
+- `model.schema(:name)` - shortcut, returns rules hash for a field (e.g. `{ type: :string, required: true }`)
+- `schema[field]` - returns a `Typero::Type` instance seeded with current stored value
+- `schema.rules` - returns all rules hash; `schema.rules(:name)` returns rules for a single field
+- `schema.get(field)` - returns coerced value via `db_value` (e.g. `schema.get(:location)` => `[44.39, 8.96]`)
+- `schema.set(field, value)` - coerces value (no validation) and stores on model via `self[field] =`
+- `schema.validate(field)` - validates single field, raises `TypeError` if invalid
+- `schema.validate(field) { |err| ... }` - validates single field, yields error message instead of raising
+- `schema.validate` - validates all fields, raises `TypeError` on first error
+- `schema.validate { |field, err| ... }` - validates all fields, yields each `(field, message)` pair
+- `schema.keys` - returns array of field name symbols
+- `schema.each { |k, type| ... }` - iterates yielding `(key, type_instance)` pairs
+
+```ruby
+mp = MapPoint.last
+mp.schema.get(:location)                          # => [44.39, 8.96]
+mp.schema.set(:location, "44.39, 8.96")           # coerce + store
+mp.schema.validate(:location)                     # raises TypeError if invalid
+mp.schema.validate(:location) { |err| puts err }  # captures error
+mp.schema.validate                                 # validates all, raises first error
+mp.schema.validate { |field, err| puts err }       # validates all, yields each error
+```
 
 ## Creating custom types
 
@@ -403,6 +438,7 @@ Use in schema: `slug :slug, separator: '-'`
 | lib/typero/type/type.rb | `Typero::Type` - abstract base, error system, opts system |
 | lib/typero/type/geo_extract.rb | `Typero::GeoExtract` - shared coord extraction from map URLs |
 | lib/typero/type/types/*.rb | One file per type |
+| lib/typero/schema_accessor.rb | `Typero::SchemaAccessor` - instance-level typed field access |
 | lib/adapters/sequel.rb | Sequel ORM plugin |
 | spec/spec_helper.rb | Test setup, requires Sequel inflector |
 | spec/lib/blank.rb | Polyfill for blank?/present? |
