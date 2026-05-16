@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require 'sequel'
+Sequel.extension :inflector
+
+require_relative '../lib/typero'
+
+TYPES = Dir['%s/../lib/typero/type/types/*.rb' % __dir__].map do |el|
+  el.split('/').last.split('_type.').first
+end.sort
+
+def usage
+  puts 'Usage: typero <type> <value>'
+  puts ''
+  puts 'Validates and coerces a value using the given type.'
+  puts 'Exits 0 on success, 1 on validation error.'
+  puts ''
+  puts 'Available types:'
+  TYPES.each { |t| puts "  #{t}" }
+  exit 1
+end
+
+usage if ARGV.length < 2
+
+type_name = ARGV[0]
+value     = ARGV[1..].join(' ')
+
+unless TYPES.include?(type_name)
+  $stderr.puts "Unknown type: #{type_name}"
+  $stderr.puts "Run 'typero' without arguments to see available types."
+  exit 1
+end
+
+begin
+  klass  = Typero::Type.load(type_name)
+  result = klass.new(value)
+  result.get
+  puts result.value
+rescue TypeError => e
+  $stderr.puts "Error: #{e.message}"
+  exit 1
+end

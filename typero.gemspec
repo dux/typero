@@ -6,6 +6,7 @@ Gem::Specification.new 'typero', version do |s|
   s.authors     = ["Dino Reic"]
   s.email       = 'reic.dino@gmail.com'
   s.files       = Dir['./lib/**/*.rb']+['./.version']
+  s.executables = ['typero']
   s.homepage    = 'https://github.com/dux/typero'
   s.license     = 'MIT'
 
